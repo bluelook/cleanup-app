@@ -75,19 +75,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-#punishment-popup.praise-popup {
-  border-color: #28a745;
-}
-
-.praise-effect {
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 20px;
-  pointer-events: none;
-  z-index: 100;
-}
 
 
 
