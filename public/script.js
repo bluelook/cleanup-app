@@ -126,26 +126,21 @@ function showTutorialWaterDrop(durationSec) {
 }
 
 function tutorialPunish(sourceId, targetId, callback) {
-    // Map logical names → DOM ids
-    const realSource = (sourceId === "PLAYER" ? "TUTORIAL_PLAYER" : "TUTORIAL_DUMMY");
     const realTarget = (targetId === "PLAYER" ? "TUTORIAL_PLAYER" : "TUTORIAL_DUMMY");
 
-    // Avatar visuals for messages
     const avatarPlayerHTML = `<img src="images/player_demo.png" width="25" style="vertical-align:middle;">`;
     const avatarDummyHTML  = `<img src="images/player_demo.png" width="25" style="vertical-align:middle; filter: grayscale(100%) brightness(70%);">`;
 
     const sourceAvatarHTML = (sourceId === "PLAYER" ? avatarPlayerHTML : avatarDummyHTML);
     const targetAvatarHTML = (targetId === "PLAYER" ? avatarPlayerHTML : avatarDummyHTML);
 
-    // --- IMPORTANT: get THE TARGET avatar element ---
     const targetElem = document.querySelector(`img.player-avatar[data-user-id="${realTarget}"]`);
     if (!targetElem) {
         console.error("tutorialPunish: could not find target avatar:", realTarget);
         return;
     }
 
-    // Attach explosion ABOVE THE TARGET avatar
-    const wrapper = targetElem.parentElement;  // avatar wrapper <div>
+    const wrapper = targetElem.parentElement;
     wrapper.style.position = "relative";
 
     const explosion = document.createElement("div");
@@ -156,39 +151,24 @@ function tutorialPunish(sourceId, targetId, callback) {
     explosion.style.left = "50%";
     explosion.style.transform = "translateX(-50%)";
     explosion.style.fontSize = "28px";
-
     wrapper.appendChild(explosion);
 
-    // --- PUBLIC MESSAGE ---
+    const tutorialPunishMsg = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
+
     $("#centered-message")
-        .html(`${sourceAvatarHTML} is telling off ${targetAvatarHTML}`)
+        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPunishMsg}'`)
         .fadeIn();
 
-    // --- PRIVATE MESSAGE (only if target is PLAYER) ---
     if (targetId === "PLAYER") {
         $("#punishment-popup")
-            .html(`You are being told off by ${sourceAvatarHTML}`)
+            .html(`${sourceAvatarHTML} is telling you: '${tutorialPunishMsg}'`)
             .fadeIn();
     }
 
-    // Cleanup
     setTimeout(() => {
         explosion.remove();
-        // PUBLIC message - remove border immediately
-        // PUBLIC message — kill instantly, no fade
-        $("#centered-message")
-            .stop(true, true)      // stop ongoing animation
-            .hide()                // hide immediately
-            .empty();              // clear content
-
-        // PRIVATE message — kill instantly, no fade
-        $("#punishment-popup")
-            .stop(true, true)
-            .hide()
-            .empty();
-
-
-
+        $("#centered-message").stop(true, true).hide().empty();
+        $("#punishment-popup").stop(true, true).hide().empty();
         if (callback) callback();
     }, 3000);
 }
@@ -885,12 +865,20 @@ function timeOutScreen() {
         `);
 }
 
+const punishmentMessages = [
+    "Step up your game.",
+    "Your effort is needed.",
+    "Need your help here."
+];
+
 function punishPlayer(targetId) {
-    console.log("👊 Punishing player:", targetId);
+    const punishMessage = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
+    console.log("👊 Punishing player:", targetId, "message:", punishMessage);
     socket.emit("punish_player", {
         punisherId: user.id,
         punishedId: targetId,
-        roomId: roomId
+        roomId: roomId,
+        punishMessage: punishMessage
     });
 }
 
@@ -1421,7 +1409,7 @@ $(document).ready(() => {
 
     // === Punishment Effect Handler ===
 
-    socket.on("punishment_notice", ({ punisherId, punishedId, roomUsers }) => {
+    socket.on("punishment_notice", ({ punisherId, punishedId, punishMessage, roomUsers }) => {
         gameFrozen = true;
 
         const punisher = users[punisherId];
@@ -1431,19 +1419,15 @@ $(document).ready(() => {
         const { x, y } = punished.position;
         const $cell = $(`#cell-${x}-${y}`);
 
-        // 💥 Append explosion
         $cell.append(`<div class="punishment-effect">💥</div>`);
 
-        // 🧍‍♂️ Avatars
         const punisherAvatar = `<img src="${punisher.avatar}" width="30" class="inline-avatar">`;
         const punishedAvatar = `<img src="${punished.avatar}" width="30" class="inline-avatar">`;
 
-        // 📢 Public message
-        $("#centered-message").html(`${punisherAvatar} is telling off ${punishedAvatar}`).fadeIn();
+        $("#centered-message").html(`${punisherAvatar} is telling ${punishedAvatar}: '${punishMessage}'`).fadeIn();
 
-        // 🔔 Private message
         if (user.id === punishedId) {
-            $("#punishment-popup").html(`You are being told off by ${punisherAvatar}`).fadeIn();
+            $("#punishment-popup").html(`${punisherAvatar} is telling you: '${punishMessage}'`).fadeIn();
         }
 
         // ✅ After 3 seconds: cleanup and re-render

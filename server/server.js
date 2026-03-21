@@ -650,24 +650,23 @@ console.log(`Test mode enabled: taskTime set to ${taskTime} seconds`);
     // יhandle punishment mode
     if (socket.flags.punishments) {
         // === punishments event listener ===
-        socket.on("punish_player", ({ punisherId, punishedId, roomId }) => {
+        socket.on("punish_player", ({ punisherId, punishedId, roomId, punishMessage }) => {
             const punisher = users[punisherId];
             if (!punisher || punisher.roomId !== roomId) return;
             const timestamp = new Date()-StartTime[roomId];
             const created_at = new Date().toISOString().slice(0, 19).replace("T", " ");
                 // Save to DB
                 db.query(
-                    "INSERT INTO punishments (punisher_id, punished_id, room_id, timestamp, created_at) VALUES (?, ?, ?, ?, ?)",
-                    [punisherId, punishedId, roomId, timestamp, created_at], (err) => {
+                    "INSERT INTO punishments (punisher_id, punished_id, room_id, punishment_message, timestamp, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                    [punisherId, punishedId, roomId, punishMessage, timestamp, created_at], (err) => {
                         if (err) console.error("❌ DB Error:", err);
-                        else console.log(`✅ Punishment saved: ${punisherId} ➡️ ${punishedId}`);
+                        else console.log(`✅ Punishment saved: ${punisherId} ➡️ ${punishedId} ("${punishMessage}")`);
                     }
                 );
                 const roomUsers = Object.values(users).filter(u => u.roomId === roomId);
 
-
                 // Broadcast to all players in the room
-                io.to(`room_${roomId}`).emit("punishment_notice", { punisherId, punishedId,roomUsers});
+                io.to(`room_${roomId}`).emit("punishment_notice", { punisherId, punishedId, punishMessage, roomUsers });
         });
     }
     

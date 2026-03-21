@@ -45,16 +45,17 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  font-size: 24px;
+  font-size: 15px;
   font-weight: bold;
   background-color: rgba(0, 0, 0, 0.6);
-  padding: 12px 20px;
+  padding: 8px 14px;
   border-radius: 8px;
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   pointer-events: none;
+  white-space: nowrap;
 }
 
 /* Private message: just under the board — green border variant for praise */
@@ -72,13 +73,12 @@
   z-index: 100;
 }
 
-/* Private message: just under the board */
+/* Private message: fixed at bottom of screen */
 #punishment-popup {
-  position: absolute;
-  top: 100%; /* just below the grid */
+  position: fixed;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 8px;
   background-color: rgba(255, 255, 255, 0.95);
   border: 2px solid red;
   border-radius: 8px;
