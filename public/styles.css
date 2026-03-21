@@ -57,6 +57,21 @@
   pointer-events: none;
 }
 
+/* Private message: just under the board — green border variant for praise */
+#punishment-popup.praise-popup {
+  border-color: #28a745;
+}
+
+.praise-effect {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 100;
+}
+
 /* Private message: just under the board */
 #punishment-popup {
   position: absolute;

@@ -46,14 +46,15 @@ function isWaterTile(x, y) {
 
 function getTutorialModeFlags() {
     return {
-        water: (mode === "water" || mode === "waterPunish"),
-        punish: (mode === "punish" || mode === "waterPunish")
+        water: (mode === "water" || mode === "waterPunish" || mode === "waterPraise"),
+        punish: (mode === "punish" || mode === "waterPunish"),
+        praise: (mode === "praise" || mode === "waterPraise")
     };
 }
 
 function getTutorialStartStage() {
     const flags = getTutorialModeFlags();
-    const maxStages = 5 + (flags.water ? 1 : 0) + (flags.punish ? 1 : 0);
+    const maxStages = 5 + (flags.water ? 1 : 0) + (flags.punish ? 1 : 0) + (flags.praise ? 1 : 0);
     if (!testMode) return 1;
     if (!Number.isFinite(tutorialStartParam)) return 1;
     return Math.min(Math.max(tutorialStartParam, 1), maxStages);
@@ -464,6 +465,14 @@ function startTutorial(stage) {
         });
     }
 
+    // ⭐ Insert PRAISE stage only if mode supports praise
+    if (flags.praise) {
+        tutorialStages.push({
+            text: "In this game, players can praise other players to show appreciation.<br>To experience how this works, click on the dummy player with your mouse.<br>This will trigger a praise animation (👍) and a message.<br>Afterwards, you will see how it looks when someone praises <b>YOU</b>.<br>",
+            objective: "Click dummy to praise them."
+        });
+    }
+
     // ✅ Bounds check: ensure stage is valid
     if (stage < 1 || stage > tutorialStages.length) {
         console.error(`Invalid tutorial stage: ${stage}. Valid range: 1-${tutorialStages.length}`);
@@ -472,11 +481,13 @@ function startTutorial(stage) {
         return;
     }
 
-    // Calculate water and punish stage indices based on actual array length
+    // Calculate water, punish, and praise stage indices based on actual array length
     let waterStage = null;
     let punishStage = null;
-    if (flags.water) waterStage = tutorialStages.length - (flags.punish ? 1 : 0);
-    if (flags.punish) punishStage = tutorialStages.length;
+    let praiseStage = null;
+    if (flags.water) waterStage = tutorialStages.length - (flags.punish ? 1 : 0) - (flags.praise ? 1 : 0);
+    if (flags.punish) punishStage = tutorialStages.length - (flags.praise ? 1 : 0);
+    if (flags.praise) praiseStage = tutorialStages.length;
 
     // Place objects based on the tutorial stage
     if (stage === 2) gridObjects.apple = { x: 0, y: 2 };
@@ -490,6 +501,10 @@ function startTutorial(stage) {
         position = { x: 3, y: 1 }; // Start on land for the water test
     }
     if (stage === punishStage) {
+        position = { x: 2, y: 1 };              // player
+        gridObjects.dummy = { x: 4, y: 1 };     // dummy
+    }
+    if (stage === praiseStage) {
         position = { x: 2, y: 1 };              // player
         gridObjects.dummy = { x: 4, y: 1 };     // dummy
     }
@@ -608,51 +623,79 @@ function startTutorial(stage) {
                 position = { x: 3, y: 1 }; // player start
                 gridObjects.dummy = { x: 4, y: 1 }; // NPC next to you
             }
-
+            if (flags.praise && stage === praiseStage) {
+                position = { x: 3, y: 1 }; // player start
+                gridObjects.dummy = { x: 4, y: 1 }; // NPC next to you
+            }
 
             // Redraw grid after movement (drop will be reattached below)
             drawTutorialGrid(position, gridObjects);
         }
     });
 
-    // === Click dummy to punish ===
+    // === Click dummy to punish or praise ===
     $(document).off("click.tut").on("click.tut", "img.player-avatar", function () {
 
-        if (!flags.punish || stage !== punishStage) return;
-
+        const isPunishStage = flags.punish && stage === punishStage;
+        const isPraiseStage = flags.praise && stage === praiseStage;
+        if (!isPunishStage && !isPraiseStage) return;
 
         let targetId = $(this).data("user-id");
-
-        if (targetId === "TUTORIAL_PLAYER") return;   // no self-punish
-        if (targetId !== "TUTORIAL_DUMMY") return;    // only dummy clickable
+        if (targetId === "TUTORIAL_PLAYER") return;
+        if (targetId !== "TUTORIAL_DUMMY") return;
 
         $(document).off("click.tut");
 
-        // PHASE 1: player punishes dummy
-        tutorialPunish("PLAYER", "DUMMY", () => {
-
-            $("#tutorialMessage").html(`
-            <h3>Good job!</h3>
-            <p>Now see what happens when someone tells <b>YOU</b> off.</p>
-            <button class="btn btn-warning" id="btnPunishPlayer">Show me</button>
-        `).show();
-
-            $("#btnPunishPlayer").on("click", () => {
-                $("#tutorialMessage").hide();
-
-                // PHASE 2: dummy punishes player
-                tutorialPunish("DUMMY", "PLAYER", () => {
-                    $("#tutorialMessage").html(`
-                    <h3>Great job!</h3>
-                    <button class="btn btn-success" onclick="inTutorial = false; showScreen('quiz')">
-                        Proceed to Questionnaire
-                    </button>
+        if (isPunishStage) {
+            // PHASE 1: player punishes dummy
+            tutorialPunish("PLAYER", "DUMMY", () => {
+                $("#tutorialMessage").html(`
+                    <h3>Good job!</h3>
+                    <p>Now see what happens when someone tells <b>YOU</b> off.</p>
+                    <button class="btn btn-warning" id="btnPunishPlayer">Show me</button>
                 `).show();
-                    window.tutorialMovementLocked = true;
+
+                $("#btnPunishPlayer").on("click", () => {
+                    $("#tutorialMessage").hide();
+                    // PHASE 2: dummy punishes player
+                    tutorialPunish("DUMMY", "PLAYER", () => {
+                        $("#tutorialMessage").html(`
+                            <h3>Great job!</h3>
+                            <button class="btn btn-success" onclick="inTutorial = false; showScreen('quiz')">
+                                Proceed to Questionnaire
+                            </button>
+                        `).show();
+                        window.tutorialMovementLocked = true;
+                    });
+                });
             });
-        });
+        }
+
+        if (isPraiseStage) {
+            // PHASE 1: player praises dummy
+            tutorialPraise("PLAYER", "DUMMY", () => {
+                $("#tutorialMessage").html(`
+                    <h3>Good job!</h3>
+                    <p>Now see what happens when someone praises <b>YOU</b>.</p>
+                    <button class="btn btn-warning" id="btnPraisePlayer">Show me</button>
+                `).show();
+
+                $("#btnPraisePlayer").on("click", () => {
+                    $("#tutorialMessage").hide();
+                    // PHASE 2: dummy praises player
+                    tutorialPraise("DUMMY", "PLAYER", () => {
+                        $("#tutorialMessage").html(`
+                            <h3>Great job!</h3>
+                            <button class="btn btn-success" onclick="inTutorial = false; showScreen('quiz')">
+                                Proceed to Questionnaire
+                            </button>
+                        `).show();
+                        window.tutorialMovementLocked = true;
+                    });
+                });
+            });
+        }
     });
-});
 
 
 }
@@ -849,6 +892,72 @@ function punishPlayer(targetId) {
         punishedId: targetId,
         roomId: roomId
     });
+}
+
+const praiseMessages = [
+    "You are doing a great job",
+    "Great work",
+    "Appreciate your effort"
+];
+
+function praisePlayer(targetId) {
+    const praiseMessage = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
+    console.log("Praising player:", targetId, "message:", praiseMessage);
+    socket.emit("praise_player", {
+        praiserId: user.id,
+        praisedId: targetId,
+        roomId: roomId,
+        praiseMessage: praiseMessage
+    });
+}
+
+function tutorialPraise(sourceId, targetId, callback) {
+    const realTarget = (targetId === "PLAYER" ? "TUTORIAL_PLAYER" : "TUTORIAL_DUMMY");
+
+    const avatarPlayerHTML = `<img src="images/player_demo.png" width="25" style="vertical-align:middle;">`;
+    const avatarDummyHTML  = `<img src="images/player_demo.png" width="25" style="vertical-align:middle; filter: grayscale(100%) brightness(70%);">`;
+
+    const sourceAvatarHTML = (sourceId === "PLAYER" ? avatarPlayerHTML : avatarDummyHTML);
+    const targetAvatarHTML = (targetId === "PLAYER" ? avatarPlayerHTML : avatarDummyHTML);
+
+    const targetElem = document.querySelector(`img.player-avatar[data-user-id="${realTarget}"]`);
+    if (!targetElem) {
+        console.error("tutorialPraise: could not find target avatar:", realTarget);
+        return;
+    }
+
+    const wrapper = targetElem.parentElement;
+    wrapper.style.position = "relative";
+
+    const praiseEffect = document.createElement("div");
+    praiseEffect.className = "praise-effect";
+    praiseEffect.textContent = "👍";
+    praiseEffect.style.position = "absolute";
+    praiseEffect.style.top = "-20px";
+    praiseEffect.style.left = "50%";
+    praiseEffect.style.transform = "translateX(-50%)";
+    praiseEffect.style.fontSize = "28px";
+    wrapper.appendChild(praiseEffect);
+
+    const tutorialPraiseMsg = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
+
+    $("#centered-message")
+        .html(`${sourceAvatarHTML} is praising ${targetAvatarHTML}`)
+        .fadeIn();
+
+    if (targetId === "PLAYER") {
+        $("#punishment-popup")
+            .addClass("praise-popup")
+            .html(`${sourceAvatarHTML} says: <em>"${tutorialPraiseMsg}"</em>`)
+            .fadeIn();
+    }
+
+    setTimeout(() => {
+        praiseEffect.remove();
+        $("#centered-message").stop(true, true).hide().empty();
+        $("#punishment-popup").stop(true, true).hide().empty().removeClass("praise-popup");
+        if (callback) callback();
+    }, 3000);
 }
 
 $(document).ready(() => {
@@ -1366,6 +1475,44 @@ $(document).ready(() => {
     });
 
 
+    // === Praise Effect Handler ===
+    socket.on("praise_notice", ({ praiserId, praisedId, praiseMessage, roomUsers }) => {
+        gameFrozen = true;
+
+        const praiser = users[praiserId];
+        const praised = users[praisedId];
+        if (!praised) return;
+
+        const { x, y } = praised.position;
+        const $cell = $(`#cell-${x}-${y}`);
+
+        $cell.append(`<div class="praise-effect">👍</div>`);
+
+        const praiserAvatar = `<img src="${praiser.avatar}" width="30" class="inline-avatar">`;
+        const praisedAvatar = `<img src="${praised.avatar}" width="30" class="inline-avatar">`;
+
+        $("#centered-message").html(`${praiserAvatar} is praising ${praisedAvatar}`).fadeIn();
+
+        if (user.id === praisedId) {
+            $("#punishment-popup").addClass("praise-popup").html(`${praiserAvatar} says: <em>"${praiseMessage}"</em>`).fadeIn();
+        }
+
+        setTimeout(() => {
+            $(".praise-effect").remove();
+            $("#centered-message").stop(true, true).hide().empty();
+            $("#punishment-popup").stop(true, true).hide().empty().removeClass("praise-popup");
+
+            roomUsers.forEach(u => {
+                const pos = u.position;
+                const $cell = $(`#cell-${pos.x}-${pos.y}`);
+                $cell.html(`<img src="${u.avatar}" class="img-fluid player-avatar" width="30" data-user-id="${u.id}">`);
+            });
+
+            gameFrozen = false;
+        }, 3000);
+    });
+
+
     // Final screen
     socket.on("experiment_ended", (data) => {
         console.log('date: ' + data)
@@ -1395,17 +1542,18 @@ $(document).ready(() => {
 
 
     $(document).on("click", ".player-avatar", function () {
-        if (inTutorial) return;                          // ✅ Don't fire during tutorial
-        if (!window.flags?.punishments) return;        // disable in non-punish mode
-
+        if (inTutorial) return;
+        if (!window.flags?.punishments && !window.flags?.praise) return;
         if (gameFrozen) return;
 
         const targetId = $(this).attr("data-user-id");
-
-        // Prevent self-punishment
         if (!targetId || targetId === user.id) return;
 
-        punishPlayer(targetId);
+        if (window.flags?.punishments) {
+            punishPlayer(targetId);
+        } else if (window.flags?.praise) {
+            praisePlayer(targetId);
+        }
     });
 
     // === POST-GAME FLOW MANAGER ===

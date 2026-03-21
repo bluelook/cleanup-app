@@ -83,10 +83,12 @@ let gameStarted = {}; // バ. Track if game has started for each room
 
 // === Experiment modes and their feature flags ===
 const featureSets = {
-    none:        { punishments: false,  waterCue: false },
-    punish:      { punishments: true,   waterCue: false },
-    water:       { punishments: false,  waterCue: true  },
-    waterPunish: { punishments: true,   waterCue: true  }
+    none:        { punishments: false, praise: false, waterCue: false },
+    punish:      { punishments: true,  praise: false, waterCue: false },
+    praise:      { punishments: false, praise: true,  waterCue: false },
+    water:       { punishments: false, praise: false, waterCue: true  },
+    waterPunish: { punishments: true,  praise: false, waterCue: true  },
+    waterPraise: { punishments: false, praise: true,  waterCue: true  }
 };
 // === End of Experiment modes and their feature flags ===
 
@@ -122,9 +124,11 @@ app.get('/config', (req, res) => {
 // shortcut links (e.g. /water → /?mode=water)
 const linkMap = {
     none: 'none',
-  water: 'water',
-  wp: 'waterPunish',
-  punish: 'punish'
+    water: 'water',
+    wp: 'waterPunish',
+    punish: 'punish',
+    praise: 'praise',
+    wpr: 'waterPraise'
 };
 
 app.get('/:link', (req, res, next) => {
@@ -254,7 +258,7 @@ console.log(`Test mode enabled: taskTime set to ${taskTime} seconds`);
 
     console.log(`New client connected: ${socket.id}`);
     console.log(`→ mode = ${mode}`);
-    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, waterCue = ${socket.flags.waterCue}`);
+    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}`);
     console.log("New client connected:", socket.id);
 
     socket.on("login", (username) => {
@@ -667,6 +671,25 @@ console.log(`Test mode enabled: taskTime set to ${taskTime} seconds`);
         });
     }
     
+    // handle praise mode
+    if (socket.flags.praise) {
+        socket.on("praise_player", ({ praiserId, praisedId, roomId, praiseMessage }) => {
+            const praiser = users[praiserId];
+            if (!praiser || praiser.roomId !== roomId) return;
+            const timestamp = new Date() - StartTime[roomId];
+            const created_at = new Date().toISOString().slice(0, 19).replace("T", " ");
+            db.query(
+                "INSERT INTO praises (praiser_id, praised_id, room_id, praise_message, timestamp, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                [praiserId, praisedId, roomId, praiseMessage, timestamp, created_at], (err) => {
+                    if (err) console.error("DB Error:", err);
+                    else console.log(`Praise saved: ${praiserId} -> ${praisedId} ("${praiseMessage}")`);
+                }
+            );
+            const roomUsers = Object.values(users).filter(u => u.roomId === roomId);
+            io.to(`room_${roomId}`).emit("praise_notice", { praiserId, praisedId, praiseMessage, roomUsers });
+        });
+    }
+
     // יhandle water mode
     if (socket.flags.waterCue) {
         // === Water event listener ===
