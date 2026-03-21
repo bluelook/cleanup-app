@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Harvest Game Main</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <link rel="icon" href="favicon.ico" type="image/ico" >
+
+</head>
+<body class="bg-light text-center">
+    <h1>Apple Harvest Game</h1>
+    <p>Select a version:</p>
+
+    <div class="container" style="max-width: 420px;">
+        <label for="groupSize" class="form-label">Group size</label>
+        <select id="groupSize" class="form-select mb-3">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+        </select>
+    </div>
+
+    <div class="container" style="max-width: 420px;">
+        <div class="form-check mb-3 text-start">
+            <input class="form-check-input" type="checkbox" id="testMode">
+            <label class="form-check-label" for="testMode">Test mode</label>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 420px; display: none;" id="skipConsentWrap">
+        <div class="form-check mb-3 text-start">
+            <input class="form-check-input" type="checkbox" id="skipConsent">
+            <label class="form-check-label" for="skipConsent">Skip consent</label>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 420px; display: none;" id="skipTutorialWrap">
+        <div class="form-check mb-3 text-start">
+            <input class="form-check-input" type="checkbox" id="skipTutorial">
+            <label class="form-check-label" for="skipTutorial">Skip tutorial</label>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 420px; display: none;" id="jumpSurveyWrap">
+        <div class="form-check mb-3 text-start">
+            <input class="form-check-input" type="checkbox" id="jumpSurvey">
+            <label class="form-check-label" for="jumpSurvey">Jump to post-game survey</label>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 420px; display: none;" id="tutorialStartWrap">
+        <label for="tutorialStart" class="form-label">Tutorial start page</label>
+        <select id="tutorialStart" class="form-select mb-3">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+        </select>
+    </div>
+
+    <div class="container" style="max-width: 420px;">
+        <label for="prolificCode" class="form-label">Prolific Code</label>
+        <input type="text" id="prolificCode" class="form-control mb-3" placeholder="TESTCODE">
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+        <button class="btn btn-warning" data-mode="none">None</button>
+        <button class="btn btn-primary" data-mode="punish">Punishment</button>
+        <button class="btn btn-info" data-mode="water">Water</button>
+        <button class="btn btn-danger" data-mode="waterPunish">Water + Punishment</button>
+    </div>
+
+    <script>
+        const groupSizeSelect = document.getElementById("groupSize");
+        const testModeCheckbox = document.getElementById("testMode");
+        const skipTutorialWrap = document.getElementById("skipTutorialWrap");
+        const skipTutorialCheckbox = document.getElementById("skipTutorial");
+        const skipConsentWrap = document.getElementById("skipConsentWrap");
+        const skipConsentCheckbox = document.getElementById("skipConsent");
+        const tutorialStartWrap = document.getElementById("tutorialStartWrap");
+        const tutorialStartSelect = document.getElementById("tutorialStart");
+        const jumpSurveyWrap = document.getElementById("jumpSurveyWrap");
+        const jumpSurveyCheckbox = document.getElementById("jumpSurvey");
+
+        function updateTutorialOptionsVisibility() {
+            const isTest = testModeCheckbox.checked;
+            const skip = skipTutorialCheckbox.checked;
+            skipTutorialWrap.style.display = isTest ? "block" : "none";
+            skipConsentWrap.style.display = isTest ? "block" : "none";
+            jumpSurveyWrap.style.display = isTest ? "block" : "none";
+            tutorialStartWrap.style.display = isTest && !skip ? "block" : "none";
+        }
+
+        testModeCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
+        skipTutorialCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
+        skipConsentCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
+        jumpSurveyCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
+        updateTutorialOptionsVisibility();
+
+        skipTutorialCheckbox.addEventListener("change", () => {
+            if (skipTutorialCheckbox.checked) {
+                skipConsentCheckbox.checked = true;
+                skipConsentCheckbox.disabled = true;
+            } else {
+                skipConsentCheckbox.disabled = false;
+            }
+        });
+
+        jumpSurveyCheckbox.addEventListener("change", () => {
+            if (jumpSurveyCheckbox.checked) {
+                skipConsentCheckbox.checked = true;
+                skipConsentCheckbox.disabled = true;
+                skipTutorialCheckbox.checked = true;
+                skipTutorialCheckbox.disabled = true;
+                tutorialStartWrap.style.display = "none";
+            } else {
+                skipTutorialCheckbox.disabled = false;
+                skipConsentCheckbox.disabled = !skipTutorialCheckbox.checked;
+                updateTutorialOptionsVisibility();
+            }
+        });
+
+        document.querySelectorAll("button[data-mode]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const mode = btn.getAttribute("data-mode");
+                const groupSize = groupSizeSelect.value;
+                const prolificCode = document.getElementById("prolificCode").value.trim() || "TESTCODE";
+                const testMode = testModeCheckbox.checked ? "true" : "false";
+                const tutorialStart = tutorialStartSelect.value;
+                const skipTutorial = skipTutorialCheckbox.checked ? "true" : "false";
+                const skipConsent = skipConsentCheckbox.checked ? "true" : "false";
+                const jumpSurvey = jumpSurveyCheckbox.checked ? "true" : "false";
+                const tutorialParam = testMode === "true" && skipTutorial === "false"
+                    ? `&tutorialStart=${tutorialStart}`
+                    : "";
+                const skipParam = testMode === "true"
+                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}`
+                    : "";
+                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${skipParam}${tutorialParam}&prolificCode=${prolificCode}`;
+            });
+        });
+    </script>
+</body>
+</html>

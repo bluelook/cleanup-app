@@ -1,0 +1,231 @@
+/* public/styles.css */
+.orchard {
+    background-color: rgb(180, 243, 180);
+}
+
+.land {
+    background-color: rgb(230, 206, 175);
+}
+
+.river {
+    background-color: rgb(188, 231, 245);
+}
+
+.table-bordered td {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+}
+
+.flash-red {
+    animation: flashRed 0.5s;
+    background-color: red !important;
+}
+
+@keyframes flashRed {
+    0% { background-color: red; }
+    100% { background-color: transparent; }
+}
+
+.inline-avatar {
+  width: 30px;
+  height: auto;
+  display: inline-block;
+}
+
+#game-area {
+  position: relative;
+  display: inline-block;
+}
+
+/* Public message: centered on the grid */
+.centered-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* Private message: just under the board */
+#punishment-popup {
+  position: absolute;
+  top: 100%; /* just below the grid */
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 2px solid red;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: black;
+  font-size: 16px;
+  z-index: 1001;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#punishment-popup.praise-popup {
+  border-color: #28a745;
+}
+
+.praise-effect {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+
+
+.private-punishment-msg {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffefef;
+  padding: 10px 20px;
+  border: 2px solid red;
+  border-radius: 10px;
+  font-size: 18px;
+  z-index: 9999;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+#global-block-message {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  z-index: 10000;
+  display: flex;              /* flex for centering */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  padding: 20px;
+}
+
+#global-block-message img {
+  vertical-align: middle;
+  margin: 0 8px;
+  border-radius: 50%;
+}
+
+#global-block-message .inline-avatar {
+  width: 40px;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(15, 40px); /* 15 cols, 40px each */
+  grid-template-rows: repeat(10, 40px);    /* 10 rows, 40px each */
+  border: 1px solid #999;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1); /* Subtle depth */
+  background-color: #ccc;
+}
+
+.grid-cell {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid #aaa;
+  box-sizing: border-box;
+}
+
+/* Terrain Styles */
+.grid-cell.orchard {
+  background-color: #c2f0c2;
+}
+.grid-cell.river {
+  background-color: #b0d4f1;
+}
+.grid-cell.land {
+  background-color: #e0cda9;
+}
+
+
+.water-drop {
+  animation: float 1s ease-in-out infinite alternate;
+  font-size: 20px;
+}
+@keyframes float {
+  from { transform: translate(-50%, -2px); }
+  to   { transform: translate(-50%, 2px); }
+}
+
+.player-avatar[data-user-id="TUTORIAL_DUMMY"] {
+    filter: grayscale(80%) sepia(20%) hue-rotate(200deg) brightness(70%);
+}
+
+/* Auto-width, single-line public message for tutorial */
+.tutorial-mode #centered-message {
+     position: absolute;
+    top: -5px;              /* moves above the board */
+    left: 50%;
+    transform: translateX(-50%);   /* centers horizontally */
+
+    display: inline-block;     /* shrink to content */
+    white-space: nowrap;       /* prevent line breaks */
+    
+    font-size: 0.85rem;        /* smaller but readable */
+    padding: 4px 8px;          /* comfortable but not tall */
+    
+    line-height: 1.1;
+    border-radius: 6px;
+    max-width: none !important;   /* no forced width */
+    width: auto !important;        /* auto grows to content */
+}
+
+
+
+/* Private punishment popup inside tutorial */
+.tutorial-mode #punishment-popup {
+    font-size: 0.9rem;        /* slightly bigger than public */
+    padding: 8px 10px;
+}
+
+/* Shrink icons slightly, not drastically */
+.tutorial-mode #centered-message img,
+.tutorial-mode #punishment-popup img {
+    width: 20px !important;   /* was 16px — now larger but still smaller than main (25px) */
+    height: auto;
+}
+
+/* Slider tooltip — increase vertical spacing so it clears avatars */
+.slider-tooltip {
+  position: absolute;
+  top: -30px;                 /* ← increase negative value to push tooltip higher */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  display: none;
+  z-index: 1000;
+}

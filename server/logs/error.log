@@ -1,0 +1,4 @@
+[2026-01-19T11:55:55.807Z] [ROOM_ASSIGNED] ❌ No socket found for user DUMMY_8xto (dummy_iuu7vnkya)
+[2026-01-19T11:55:55.824Z] [ROOM_ASSIGNED] ❌ No socket found for user DUMMY_9s52 (dummy_548wucukr)
+[2026-01-19T12:01:44.607Z] [DISCONNECT] ⚠️ Could not find userId for disconnected socket X1wYbrAdPzPyJgOYAAAB
+[2026-03-21T10:26:00.493Z] ❌ DB Error: Error: connect ECONNREFUSED 127.0.0.1:3306

@@ -1,0 +1,566 @@
+const expName = 'CleanUP_base';
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+const 
+mysql = require("mysql2");
+const cors = require("cors");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid"); //  Import UUID generator
+const { stringify } = require("querystring");
+
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+const userRooms = {}; // Tracks which room each user is in
+const userNames = {}; // Tracks which room each user is in
+const users = {}; //  Stores all user objects by their ID
+const stars = {}; //  Stores stars by roomId
+const balls = {};  //  Stores balls by roomId
+const StartTime = {};// start time for each room
+const chatMessages = {}; // ✅ Store messages per room
+const roomTimeLeft = {}; //timer for each room
+
+
+
+
+app.use(cors());
+app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.json());
+
+// Game stuff
+
+let taskTime = 600; //time of the experiment in seconds
+const groupSize = 4; // number of players in a room
+const starPay = 0.02; //Define how much each apple (star) is worth in GBP
+
+const P_star = 0.9; //probability of star to appear every second
+const P_ball = 0.6; //probability of star to appear every second
+
+const GRID_WIDTH = 15;
+const GRID_HEIGHT = 10;
+const startingPositions = [
+    { x: 5, y: 4 },
+    { x: 7, y: 5 },
+    { x: 6, y: 6 },
+    { x: 8, y: 8 },
+    { x: 8, y: 2 },
+    { x: 9, y: 7 }
+];
+
+
+
+// MySQL Database Connection
+const dbConfig = require("./dbConfig"); // ✅ Import the config file
+
+// ✅ Create MySQL connection using imported config
+const db = mysql.createConnection({
+    host: dbConfig.host,
+    user: dbConfig.user,
+    password: dbConfig.password,
+    database: dbConfig.database
+});
+
+db.connect(err => {
+    if (err) {
+        console.error("Database connection failed: " + err.stack);
+        return;
+    }
+    console.log("Connected to MySQL database.");
+});
+
+//  Global Storage
+let waitingUsers = [];
+
+const connectedUsers = {}; //  Store socket IDs globally
+
+io.on("connection", (socket) => {
+    console.log("New client connected:", socket.id);
+
+
+    socket.on("login", (username) => {
+        if (!username) {
+            socket.emit("login_error", "Username required");
+            return;
+        }
+    
+        let userId = Math.random().toString(36).substr(2, 9);
+        let user = { id: userId, username, roomId: null, avatar: null, position: null };
+        users[userId] = user; //  Store full user object
+
+        connectedUsers[userId] = socket.id;
+        userNames[userId] = username;
+        console.log(`User Logged In: ${username} (${userId})`);
+    
+        //  Only authenticate user, do NOT add to the waiting list yet
+        socket.emit("login_success", user);
+    });
+
+
+    //  New event to add users to the waiting list
+    socket.on("join_waiting_list", (user) => {
+        console.log(`User ${user.username} joined the waiting list.`);
+
+        if (!user || !user.username) {
+            socket.emit("waiting_list_error", "Invalid user.");
+            return;
+        }
+
+        waitingUsers.push(user);
+        //console.log(`User ${user.username} joined the waiting list.`);
+
+        //  Assign a room if groupSize users are ready
+        if (waitingUsers.length >= groupSize) {
+            let roomUsers = waitingUsers.splice(0, groupSize);
+            let roomId = uuidv4().slice(0, 5); //  Unique 5-char room ID
+            chatMessages[roomId] = [];
+            roomUsers.forEach((user, index) => {
+                user.roomId = roomId;
+                user.avatar = `images/player_${index + 1}.png`; //  Assign image avatar
+                user.position = startingPositions[index % startingPositions.length];
+                user.star_score = 0;
+                user.ball_score = 0;
+                userRooms[user.id] = roomId;
+                users[user.id] = user; //  Store full user object
+
+            });
+            
+
+            roomUsers.forEach(user => {
+                let socketId = connectedUsers[user.id];
+                if (socketId) {
+                    io.to(socketId).emit("room_assigned", { roomId, users: roomUsers });
+                }
+            });
+
+            //  Start countdown timer (2 minutes)
+            //startRoomTimer(roomId);
+        }
+    });
+        
+    //  Handle room joining
+    socket.on("join_room", (data) => {
+        let { userId, roomId } = data;
+        let user = users[userId];
+    
+        if (!user) return;
+    
+        socket.join(`room_${roomId}`); // ✅ User joins the room
+        console.log(`${user.username} joined room ${roomId}`);
+    
+        // ✅ Notify the user that they have joined
+        socket.emit("room_joined", { roomId });
+    
+        // ✅ Broadcast to all users in the room
+        let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
+        io.to(`room_${roomId}`).emit("update_room_users", roomUsers);
+    });
+    
+
+    socket.on("send_chat_message", (data) => {
+
+        let { userId, roomId, message } = data;
+        console.log('message recieved from user '+userId + ', room '+roomId+ ', message: '+ message);
+
+        let user = users[userId];
+    
+        if (!user) return;
+        
+        if (!chatMessages[roomId]) {
+            chatMessages[roomId] = [];
+        }
+    
+        // ✅ Store the message
+        chatMessages[roomId].push({ userId, username: user.username, avatar: user.avatar, message });
+       // console.log('Messages in room:' + JSON.stringify({ chatMessages }))
+        // ✅ Send message to all users in the room
+        io.to(`room_${roomId}`).emit("receive_chat_message", chatMessages[roomId]);
+    
+        // ✅ Check if all users in the room sent a message
+        let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
+        if (chatMessages[roomId].length === roomUsers.length) {
+            io.to(`room_${roomId}`).emit("all_messages_received");
+        }
+    });
+
+    socket.on("start_grid_game", (data) => {
+        let { roomId } = data;
+    
+        if (!roomId) return;
+    
+        console.log(`Starting grid game for room ${roomId}`);
+    
+        // ✅ Clear chat messages to free memory
+        if (chatMessages[roomId]) {
+            delete chatMessages[roomId];
+        }
+    
+        // ✅ Get all users in the room
+        let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
+    
+        // ✅ Start the game timer (spawning stars & balls, countdown)
+        startRoomTimer(roomId);
+    
+        // ✅ Emit game start event with room ID and users
+        io.to(`room_${roomId}`).emit("start_grid_game", { roomId, users: roomUsers });
+    });
+    
+   
+
+    socket.on("disconnect", () => {
+        console.log(`Client disconnected: ${socket.id}`);
+        let disconnectedUserId = Object.keys(connectedUsers).find(userId => connectedUsers[userId] === socket.id);
+        
+        if (disconnectedUserId) {
+            console.log(`Removing user: ${disconnectedUserId} from connectedUsers.`);
+            delete connectedUsers[disconnectedUserId];
+    
+            //  Remove from waitingUsers if they haven't been assigned a room
+            const index = waitingUsers.findIndex(user => user.id === disconnectedUserId);
+            if (index !== -1) {
+                console.log(`User ${waitingUsers[index].username} removed from waiting list.`);
+                waitingUsers.splice(index, 1);
+                return; //  Exit if user was still in queue
+            }
+    
+            //  Find the user's room from `userRooms`
+            let roomId = userRooms[disconnectedUserId];
+            let userNameLeft = userNames[disconnectedUserId];
+
+            if (roomId) {
+                console.log('sending note to room '+roomId);
+                delete userRooms[disconnectedUserId]; //  Remove from tracking
+                io.to(`room_${roomId}`).emit("user_left", { roomId, username: userNameLeft });
+                console.log(`User ${disconnectedUserId} left Room ${roomId}`);
+                console.log(`User ${userNameLeft} left Room ${roomId}`);
+
+            }
+        }
+    });
+
+
+    // Game stuff!!
+
+
+
+   
+
+    //  Handle movement requests
+    socket.on("move", (data) => {
+
+        let { userId, direction } = data;
+        console.log(userId+' moved to '+ direction);
+        let user = users[userId]; //  Get full user object from `users`
+       // console.log('Found user -  '+ user.position);
+
+        if (!user || !user.position) {
+            console.log('leave because no user')
+            return;
+        };
+    
+        let { x, y } = user.position;
+        let newX = x, newY = y;
+    
+        if (direction === "ArrowLeft") newX--;
+        if (direction === "ArrowRight") newX++;
+        if (direction === "ArrowUp") newY--;
+        if (direction === "ArrowDown") newY++;
+    
+        //  Check if move is valid
+        if (newX < 0 || newX >= GRID_WIDTH || newY < 0 || newY >= GRID_HEIGHT) {
+            console.log('leave because bounds')
+            return;
+        };
+
+        // ✅ Get only users in the same room
+       // let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
+        //  Get all users in the same room
+        let roomId = user.roomId;
+        let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
+
+        if (roomUsers.some(u => u.position.x === newX && u.position.y === newY)) {
+            console.log('leave because collide')
+            return;
+        };
+
+       
+    
+        //  Update user position
+        user.position = { x: newX, y: newY };
+        users[userId]= user ; 
+
+        
+        //  Check if user collected a star
+        let collectedStarIndex = stars[roomId].findIndex(s => s.x === newX && s.y === newY);
+        let pickedStar = false;
+        console.log(`Plan to remove star at (${newX}, ${newY}): Index ${collectedStarIndex}`);
+
+        if (collectedStarIndex !== -1) {
+            let removedStar = stars[roomId][collectedStarIndex];
+            stars[roomId].splice(collectedStarIndex, 1); //  Remove star
+            
+            user.star_score = user.star_score + 1; //  Increase score
+            users[userId] = user;
+            pickedStar = true;
+
+            //  Send updated stars list after collecting
+            io.to(`room_${roomId}`).emit("update_stars", stars[roomId]);
+            io.to(`room_${roomId}`).emit("update_scores", getRoomScores(roomId));
+        }
+
+        //  Check if user collected a ball
+        let collectedBallIndex = balls[roomId].findIndex(b => b.x === newX && b.y === newY);
+        let pickedBall = false;
+        if (collectedBallIndex !== -1) {
+            let removedBall = balls[roomId][collectedBallIndex];
+            balls[roomId].splice(collectedBallIndex, 1); //  Remove ball
+            
+            user.ball_score = user.ball_score  + 1; //  Increase ball score
+            
+            pickedBall = true;
+            users[userId] = user;
+
+            console.log(`Removed ball at (${removedBall.x}, ${removedBall.y})`);
+            console.log(`User ${user.username} new ball score: ${user.ball_score}`);
+
+            //  Send updated balls list
+            io.to(`room_${roomId}`).emit("update_balls", balls[roomId]);
+
+            //  Send updated scores
+            io.to(`room_${roomId}`).emit("update_scores", getRoomScores(roomId));
+        }
+        //  Send updated positions of all room users
+        io.to(`room_${roomId}`).emit("update_positions", roomUsers );
+
+
+        //  Save movement data to MySQL
+        //let timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+        let timestamp = new Date()-StartTime[roomId];
+
+        const sql = `
+        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)`;
+
+        const values = [
+            roomId,
+            expName,
+            groupSize,
+            userId,
+            timestamp,
+            newX,
+            newY,
+            stars[roomId].length,
+            balls[roomId].length,
+            user.star_score,
+            user.ball_score,
+            pickedStar,
+            pickedBall
+        ];
+
+        db.query(sql, values, (err, result) => {
+            if (err) {
+                console.error("Failed to save movement:", err);
+            } else {
+                console.log(`Movement saved for ${user.username} at (${newX}, ${newY})`);
+            }
+        });             
+    
+    }); 
+
+    function getRoomScores(roomId) {
+        console.log('update scores')
+        return Object.values(users)
+            .filter(u => u.roomId === roomId)
+            .map(u => ({ username: u.username, star_score: u.star_score , ball_score: u.ball_score  }));
+    }
+    
+    let gameStarted = {}; // ✅ Track if game has started for each room
+
+    function startRoomTimer(roomId) {
+        
+        if (!roomId || gameStarted[roomId]) return; // ✅ Prevent multiple triggers
+        gameStarted[roomId] = true; // ✅ Mark the game as started
+
+        roomTimeLeft[roomId] = taskTime;
+
+        StartTime[roomId] = new Date();
+        console.log('start time room '+ roomId+' is ' + StartTime[roomId]);
+        stars[roomId] = []; //  Initialize stars array for this room
+        balls[roomId] = []; //  Initialize balls array for this room
+
+        const interval = setInterval(() => {
+            io.to(`room_${roomId}`).emit("update_timer", roomTimeLeft[roomId]);
+            
+
+            roomTimeLeft[roomId]--;
+            //  Try to generate a new star (90% probability)
+           // console.log('new p star ='+ P_star/(1+balls[roomId].length))
+            if (Math.random() < P_star/(1+balls[roomId].length)) {
+                generateNewStar(roomId);
+            }
+             //  Try to generate a new ball
+            if (Math.random() < P_ball) {
+                generateNewBall(roomId);
+            }
+            if (roomTimeLeft[roomId] < 0) {
+                clearInterval(interval);
+                io.to(`room_${roomId}`).emit("time_up");
+            }
+        }, 1000);
+    }
+
+    function generateNewStar(roomId) {
+        if (!stars[roomId]) return;
+    
+        let x, y;
+        let attempts = 0;
+        do {
+            x = Math.floor(Math.random() * 3); //  Only in first 3 columns
+            y = Math.floor(Math.random() * GRID_HEIGHT);
+            attempts++;
+        } while (
+            attempts < 10 &&
+            (stars[roomId].some(s => s.x === x && s.y === y) || // Avoid overlapping stars
+            Object.values(users).some(u => u.roomId === roomId && u.position.x === x && u.position.y === y)) // Avoid players
+        );
+    
+        if (attempts < 10) {
+            let star = { x, y };
+
+            stars[roomId].push(star);
+
+            console.log(`New star generated in room ${roomId} at (${x}, ${y})`);
+
+            io.to(`room_${roomId}`).emit("update_stars", stars[roomId]);
+        }
+    }
+    
+    function generateNewBall(roomId) {
+        if (!balls[roomId]) {
+            balls[roomId] = [];
+        }
+    
+        let x, y;
+        let attempts = 0;
+        do {
+            x = Math.floor(Math.random() * 3) + (GRID_WIDTH - 3); //  Rightmost 3 columns (12, 13, 14)
+            y = Math.floor(Math.random() * GRID_HEIGHT);
+            attempts++;
+        } while (
+            attempts < 10 &&
+            (balls[roomId].some(b => b.x === x && b.y === y) ||  // Avoid overlapping balls
+            Object.values(users).some(u => u.roomId === roomId && u.position.x === x && u.position.y === y)) // Avoid players
+        );
+    
+        if (attempts < 10) {
+            let newBall = { x, y };
+            balls[roomId].push(newBall);
+    
+            console.log(`New ball generated in room ${roomId} at (${x}, ${y})`);
+            
+            //  Send full balls list
+            io.to(`room_${roomId}`).emit("update_balls", balls[roomId]);
+        }
+    }
+    
+    socket.on("submit_demographics", (data) => {
+        const { userId, age, gender, education, comments } = data;
+    
+        let user = users[userId];
+        if (!user) {
+            console.error("User not found:", userId);
+            socket.emit("demographics_error", "User not found.");
+            return;
+        }
+    
+        let roomId = user.roomId;
+        let userName = user.username;
+        let timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+        let starScore = user.star_score || 0;
+        let ballScore = user.ball_score || 0;
+    
+        const sql = `
+            INSERT INTO demographics (player_id, player_name,room_id, group_size, exp_name, timestamp, age, gender, education, comments, star_score, ball_score)
+            VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+        const values = [userId, userName,roomId, groupSize, expName, timestamp, age, gender, education, comments, starScore, ballScore];
+    
+        db.query(sql, values, (err, result) => {
+            if (err) {
+                console.error("Failed to save demographics:", err);
+                socket.emit("demographics_error", "There was an issue saving your data.");
+            } else {
+                console.log(`Demographics saved for user ${userId}`);
+    
+                // ✅ Show thank-you screen
+                socket.emit("experiment_ended", { userId, starScore:starScore, ballScore ,starPay});
+            }
+        });
+    });
+
+    socket.on("end_experiment", (data) => {
+        console.log("End "+data)
+        let user = users[data.userId];
+        if (!user) return;
+    
+        let roomId = user.roomId;
+        let roomUsers = Object.values(users).filter(u => u.roomId === roomId); // ✅ Get all users in room
+    
+
+    
+        // ✅ Remove user from tracking objects
+        delete users[data.userId];
+        delete userRooms[data.userId];
+        delete connectedUsers[data.userId];
+        delete roomTimeLeft[roomId];
+        console.log(`User ${data.userId} left. Checking if room ${roomId} is empty...`);
+    
+        // ✅ If no users are left in the room, remove it
+        let remainingUsers = Object.values(users).filter(u => u.roomId === roomId);
+        if (remainingUsers.length === 0) {
+            console.log(`Room ${roomId} is now closed.`);
+            delete stars[roomId];
+            delete balls[roomId];
+        }
+    
+        // ✅ Send "experiment_ended" only to room members
+       // io.to(`room_${roomId}`).emit("experiment_ended", { userId, starScore:starScore, ballScore ,starPay:starPay});
+    
+        console.log(`Experiment ended for user ${data.userId}. Scores sent to room ${roomId}.`);
+    });
+    
+
+    
+    socket.on("user_timeout", (data) => {
+        console.log("time out  "+data.userId)
+        console.log("time out  "+ JSON.stringify( data )
+    )
+
+        let user = users[data.userId];
+        if (!user) return;
+    
+
+        
+            //  Remove from waitingUsers if they haven't been assigned a room
+            const index = waitingUsers.findIndex(user => user.id === data.userId);
+            if (index !== -1) {
+                console.log(`User ${waitingUsers[index].username} removed from waiting list.`);
+                waitingUsers.splice(index, 1);
+                return; //  Exit if user was still in queue
+            }
+    
+        // ✅ Remove user from tracking objects
+        delete users[data.userId];
+        delete userRooms[data.userId];
+        delete connectedUsers[data.userId];
+        console.log(`User ${data.userId} left.`);
+    
+    });
+    
+    
+    
+    
+});
+
+server.listen(5000, () => console.log("Server running on port 5000"));
