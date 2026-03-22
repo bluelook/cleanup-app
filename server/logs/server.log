@@ -276,3 +276,587 @@
 [2026-03-21T10:33:43.756Z] → mode = punish
 [2026-03-21T10:33:43.756Z] → groupSize = 4, punishments = true, waterCue = false
 [2026-03-21T10:33:43.756Z] New client connected: VMI4r-gxqMtw6d_aAAAF
+[2026-03-21T12:02:30.957Z] [DISCONNECT] Client disconnected: VMI4r-gxqMtw6d_aAAAF
+[2026-03-21T12:02:30.960Z] [DISCONNECT] Socket VMI4r-gxqMtw6d_aAAAF disconnected before login
+[2026-03-21T14:21:50.076Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T14:21:50.077Z] New client connected: wvtY8DUUQiRQzigkAAAH
+[2026-03-21T14:21:50.077Z] → mode = punish
+[2026-03-21T14:21:50.077Z] → groupSize = 4, punishments = true, waterCue = false
+[2026-03-21T14:21:50.078Z] New client connected: wvtY8DUUQiRQzigkAAAH
+[2026-03-21T14:21:57.017Z] [DISCONNECT] Client disconnected: wvtY8DUUQiRQzigkAAAH
+[2026-03-21T14:21:57.019Z] [DISCONNECT] Socket wvtY8DUUQiRQzigkAAAH disconnected before login
+[2026-03-21T14:22:15.717Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T14:22:15.717Z] New client connected: sYokbAQoncrtH19jAAAJ
+[2026-03-21T14:22:15.717Z] → mode = punish
+[2026-03-21T14:22:15.717Z] → groupSize = 4, punishments = true, waterCue = false
+[2026-03-21T14:22:15.717Z] New client connected: sYokbAQoncrtH19jAAAJ
+[2026-03-21T14:22:16.608Z] [DISCONNECT] Client disconnected: sYokbAQoncrtH19jAAAJ
+[2026-03-21T14:22:16.609Z] [DISCONNECT] Socket sYokbAQoncrtH19jAAAJ disconnected before login
+[2026-03-21T14:22:33.034Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T14:22:33.035Z] New client connected: KGOGmcVagwfU9grvAAAL
+[2026-03-21T14:22:33.035Z] → mode = punish
+[2026-03-21T14:22:33.035Z] → groupSize = 4, punishments = true, waterCue = false
+[2026-03-21T14:22:33.035Z] New client connected: KGOGmcVagwfU9grvAAAL
+[2026-03-21T14:22:50.135Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T14:22:50.135Z] New client connected: BbZyYpTkPrsp1j9zAAAN
+[2026-03-21T14:22:50.135Z] → mode = punish
+[2026-03-21T14:22:50.135Z] → groupSize = 4, punishments = true, waterCue = false
+[2026-03-21T14:22:50.135Z] New client connected: BbZyYpTkPrsp1j9zAAAN
+[2026-03-21T14:22:56.962Z] [DISCONNECT] Client disconnected: BbZyYpTkPrsp1j9zAAAN
+[2026-03-21T14:22:56.962Z] [DISCONNECT] Socket BbZyYpTkPrsp1j9zAAAN disconnected before login
+[2026-03-21T14:23:24.502Z] [DISCONNECT] Client disconnected: KGOGmcVagwfU9grvAAAL
+[2026-03-21T14:23:24.502Z] [DISCONNECT] Socket KGOGmcVagwfU9grvAAAL disconnected before login
+[2026-03-21T14:30:23.057Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T14:30:23.057Z] New client connected: jGaovm7mqjIPV0ueAAAP
+[2026-03-21T14:30:23.057Z] → mode = punish
+[2026-03-21T14:30:23.057Z] → groupSize = 4, punishments = true, waterCue = false
+[2026-03-21T14:30:23.057Z] New client connected: jGaovm7mqjIPV0ueAAAP
+[2026-03-21T21:25:53.679Z] [DISCONNECT] Client disconnected: jGaovm7mqjIPV0ueAAAP
+[2026-03-21T21:25:53.681Z] [DISCONNECT] Socket jGaovm7mqjIPV0ueAAAP disconnected before login
+[2026-03-21T21:25:53.790Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:25:53.790Z] New client connected: 5118osaLermBMqWiAAAR
+[2026-03-21T21:25:53.790Z] → mode = punish
+[2026-03-21T21:25:53.790Z] → groupSize = 4, punishments = true, waterCue = false
+[2026-03-21T21:25:53.791Z] New client connected: 5118osaLermBMqWiAAAR
+[2026-03-21T21:25:53.836Z] [LOGIN] Login request from socket 5118osaLermBMqWiAAAR, username: TEST_PROLIFIC_woyrf3772
+[2026-03-21T21:25:53.836Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_woyrf3772 (userId: 4dzekmi9s, socket: 5118osaLermBMqWiAAAR)
+[2026-03-21T21:25:53.842Z] [WAITING_LIST] Join request from socket 5118osaLermBMqWiAAAR, userId: 4dzekmi9s
+[2026-03-21T21:25:53.842Z] [WAITING_LIST] User TEST_PROLIFIC_woyrf3772 (4dzekmi9s) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:25:53.842Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:25:53.842Z] Test mode: added dummy user DUMMY_8g1e to waiting list.
+[2026-03-21T21:25:53.842Z] Test mode: added dummy user DUMMY_1cml to waiting list.
+[2026-03-21T21:25:53.842Z] Test mode: added dummy user DUMMY_fb0b to waiting list.
+[2026-03-21T21:25:53.842Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:25:53.842Z] [ROOM_ASSIGNED] Creating room f0a42 with 4 users
+[2026-03-21T21:25:53.842Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_woyrf3772 (4dzekmi9s) assigned to room f0a42 as player 1
+[2026-03-21T21:25:53.842Z] [ROOM_ASSIGNED] User DUMMY_8g1e (dummy_oms2mfk6o) assigned to room f0a42 as player 2
+[2026-03-21T21:25:53.842Z] [ROOM_ASSIGNED] User DUMMY_1cml (dummy_tzmye41l4) assigned to room f0a42 as player 3
+[2026-03-21T21:25:53.842Z] [ROOM_ASSIGNED] User DUMMY_fb0b (dummy_cs3snjnqp) assigned to room f0a42 as player 4
+[2026-03-21T21:25:53.843Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_woyrf3772 (socket: 5118osaLermBMqWiAAAR)
+[2026-03-21T21:25:53.843Z] [ROOM_ASSIGNED] Dummy user DUMMY_8g1e has no socket (test mode)
+[2026-03-21T21:25:53.843Z] [ROOM_ASSIGNED] Dummy user DUMMY_1cml has no socket (test mode)
+[2026-03-21T21:25:53.843Z] [ROOM_ASSIGNED] Dummy user DUMMY_fb0b has no socket (test mode)
+[2026-03-21T21:25:53.843Z] [ROOM_ASSIGNED] ✅ Room f0a42 fully assigned with users: TEST_PROLIFIC_woyrf3772, DUMMY_8g1e, DUMMY_1cml, DUMMY_fb0b
+[2026-03-21T21:25:55.516Z] [JOIN_ROOM] Request from socket 5118osaLermBMqWiAAAR, userId: 4dzekmi9s, roomId: f0a42
+[2026-03-21T21:25:55.517Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_woyrf3772 joined room f0a42 (socket: 5118osaLermBMqWiAAAR)
+[2026-03-21T21:25:55.517Z] [JOIN_ROOM] Room f0a42 now has 4 users in socket room
+[2026-03-21T21:26:00.512Z] [START_GRID_GAME] Request received from socket 5118osaLermBMqWiAAAR, roomId: f0a42
+[2026-03-21T21:26:00.512Z] [START_GRID_GAME] Socket 5118osaLermBMqWiAAAR maps to userId: 4dzekmi9s
+[2026-03-21T21:26:00.512Z] [START_GRID_GAME] ✅ Starting grid game for room f0a42
+[2026-03-21T21:26:00.512Z] [START_GRID_GAME] Cleared chat messages for room f0a42
+[2026-03-21T21:26:00.512Z] [START_GRID_GAME] Room f0a42 has 4 users: TEST_PROLIFIC_woyrf3772, DUMMY_8g1e, DUMMY_1cml, DUMMY_fb0b
+[2026-03-21T21:26:00.512Z] [TIMER] startRoomTimer called for room f0a42
+[2026-03-21T21:26:00.512Z] [TIMER] ✅ Game marked as started for room f0a42
+[2026-03-21T21:26:00.512Z] [TIMER] Start time for room f0a42 is Sat Mar 21 2026 23:26:00 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:26:00.512Z] [TIMER] Initialized stars and balls arrays for room f0a42
+[2026-03-21T21:26:00.512Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_f0a42
+[2026-03-21T21:26:01.515Z] New star generated in room f0a42 at (0, 4)
+[2026-03-21T21:26:01.609Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:26:02.517Z] New star generated in room f0a42 at (2, 3)
+[2026-03-21T21:26:03.519Z] New star generated in room f0a42 at (1, 8)
+[2026-03-21T21:26:03.520Z] New ball generated in room f0a42 at (13, 1)
+[2026-03-21T21:26:04.520Z] New star generated in room f0a42 at (1, 4)
+[2026-03-21T21:26:04.520Z] New ball generated in room f0a42 at (14, 3)
+[2026-03-21T21:26:05.503Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:26:05.520Z] New star generated in room f0a42 at (1, 7)
+[2026-03-21T21:26:05.520Z] New ball generated in room f0a42 at (13, 6)
+[2026-03-21T21:26:07.520Z] New ball generated in room f0a42 at (12, 3)
+[2026-03-21T21:26:09.203Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:26:09.522Z] New ball generated in room f0a42 at (13, 5)
+[2026-03-21T21:26:10.523Z] New ball generated in room f0a42 at (13, 3)
+[2026-03-21T21:26:11.524Z] New star generated in room f0a42 at (2, 6)
+[2026-03-21T21:26:11.524Z] New ball generated in room f0a42 at (14, 1)
+[2026-03-21T21:27:24.139Z] [LOGGING] Log level set to: all
+[2026-03-21T21:27:24.144Z] Server running on port 5000
+[2026-03-21T21:27:26.480Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:27:26.480Z] New client connected: 8984pMZOHDBz-erFAAAB
+[2026-03-21T21:27:26.480Z] → mode = punish
+[2026-03-21T21:27:26.480Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:27:26.481Z] New client connected: 8984pMZOHDBz-erFAAAB
+[2026-03-21T21:27:28.699Z] New client connected: 6ugXwrbOuaO1kDZ8AAAD
+[2026-03-21T21:27:28.700Z] → mode = full
+[2026-03-21T21:27:28.700Z] → groupSize = 4, punishments = false, praise = false, waterCue = false
+[2026-03-21T21:27:28.700Z] New client connected: 6ugXwrbOuaO1kDZ8AAAD
+[2026-03-21T21:27:39.071Z] [DISCONNECT] Client disconnected: 6ugXwrbOuaO1kDZ8AAAD
+[2026-03-21T21:27:39.071Z] [DISCONNECT] Socket 6ugXwrbOuaO1kDZ8AAAD disconnected before login
+[2026-03-21T21:27:46.745Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:27:46.745Z] New client connected: mZCjMEGXvop32wopAAAF
+[2026-03-21T21:27:46.745Z] → mode = punish
+[2026-03-21T21:27:46.745Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:27:46.745Z] New client connected: mZCjMEGXvop32wopAAAF
+[2026-03-21T21:27:46.760Z] [LOGIN] Login request from socket mZCjMEGXvop32wopAAAF, username: TEST_PROLIFIC_hqt0me6t1
+[2026-03-21T21:27:46.760Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_hqt0me6t1 (userId: 3nyuvvr66, socket: mZCjMEGXvop32wopAAAF)
+[2026-03-21T21:27:46.809Z] [WAITING_LIST] Join request from socket mZCjMEGXvop32wopAAAF, userId: 3nyuvvr66
+[2026-03-21T21:27:46.809Z] [WAITING_LIST] User TEST_PROLIFIC_hqt0me6t1 (3nyuvvr66) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:27:46.809Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:27:46.809Z] Test mode: added dummy user DUMMY_9vhj to waiting list.
+[2026-03-21T21:27:46.809Z] Test mode: added dummy user DUMMY_ipel to waiting list.
+[2026-03-21T21:27:46.809Z] Test mode: added dummy user DUMMY_8evl to waiting list.
+[2026-03-21T21:27:46.809Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:27:46.810Z] [ROOM_ASSIGNED] Creating room d7aed with 4 users
+[2026-03-21T21:27:46.810Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_hqt0me6t1 (3nyuvvr66) assigned to room d7aed as player 1
+[2026-03-21T21:27:46.810Z] [ROOM_ASSIGNED] User DUMMY_9vhj (dummy_rjtzlvjy9) assigned to room d7aed as player 2
+[2026-03-21T21:27:46.810Z] [ROOM_ASSIGNED] User DUMMY_ipel (dummy_f39uayl7v) assigned to room d7aed as player 3
+[2026-03-21T21:27:46.810Z] [ROOM_ASSIGNED] User DUMMY_8evl (dummy_2jbuamnhr) assigned to room d7aed as player 4
+[2026-03-21T21:27:46.810Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_hqt0me6t1 (socket: mZCjMEGXvop32wopAAAF)
+[2026-03-21T21:27:46.811Z] [ROOM_ASSIGNED] Dummy user DUMMY_9vhj has no socket (test mode)
+[2026-03-21T21:27:46.811Z] [ROOM_ASSIGNED] Dummy user DUMMY_ipel has no socket (test mode)
+[2026-03-21T21:27:46.811Z] [ROOM_ASSIGNED] Dummy user DUMMY_8evl has no socket (test mode)
+[2026-03-21T21:27:46.811Z] [ROOM_ASSIGNED] ✅ Room d7aed fully assigned with users: TEST_PROLIFIC_hqt0me6t1, DUMMY_9vhj, DUMMY_ipel, DUMMY_8evl
+[2026-03-21T21:27:46.812Z] [JOIN_ROOM] Request from socket mZCjMEGXvop32wopAAAF, userId: 3nyuvvr66, roomId: d7aed
+[2026-03-21T21:27:46.812Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_hqt0me6t1 joined room d7aed (socket: mZCjMEGXvop32wopAAAF)
+[2026-03-21T21:27:46.812Z] [JOIN_ROOM] Room d7aed now has 4 users in socket room
+[2026-03-21T21:27:53.079Z] [START_GRID_GAME] Request received from socket mZCjMEGXvop32wopAAAF, roomId: d7aed
+[2026-03-21T21:27:53.080Z] [START_GRID_GAME] Socket mZCjMEGXvop32wopAAAF maps to userId: 3nyuvvr66
+[2026-03-21T21:27:53.080Z] [START_GRID_GAME] ✅ Starting grid game for room d7aed
+[2026-03-21T21:27:53.080Z] [START_GRID_GAME] Cleared chat messages for room d7aed
+[2026-03-21T21:27:53.080Z] [START_GRID_GAME] Room d7aed has 4 users: TEST_PROLIFIC_hqt0me6t1, DUMMY_9vhj, DUMMY_ipel, DUMMY_8evl
+[2026-03-21T21:27:53.080Z] [TIMER] startRoomTimer called for room d7aed
+[2026-03-21T21:27:53.080Z] [TIMER] ✅ Game marked as started for room d7aed
+[2026-03-21T21:27:53.080Z] [TIMER] Start time for room d7aed is Sat Mar 21 2026 23:27:53 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:27:53.080Z] [TIMER] Initialized stars and balls arrays for room d7aed
+[2026-03-21T21:27:53.080Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_d7aed
+[2026-03-21T21:27:54.081Z] New star generated in room d7aed at (0, 4)
+[2026-03-21T21:27:55.081Z] New star generated in room d7aed at (1, 7)
+[2026-03-21T21:27:55.941Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:27:56.080Z] New star generated in room d7aed at (0, 1)
+[2026-03-21T21:27:57.080Z] New star generated in room d7aed at (0, 6)
+[2026-03-21T21:27:57.081Z] New ball generated in room d7aed at (14, 7)
+[2026-03-21T21:27:59.081Z] New ball generated in room d7aed at (14, 9)
+[2026-03-21T21:27:59.622Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:28:00.082Z] New star generated in room d7aed at (0, 7)
+[2026-03-21T21:28:00.082Z] New ball generated in room d7aed at (14, 1)
+[2026-03-21T21:28:02.085Z] New star generated in room d7aed at (0, 8)
+[2026-03-21T21:28:02.085Z] New ball generated in room d7aed at (14, 2)
+[2026-03-21T21:28:03.085Z] New ball generated in room d7aed at (13, 8)
+[2026-03-21T21:28:03.238Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:28:04.086Z] New star generated in room d7aed at (1, 4)
+[2026-03-21T21:28:04.087Z] New ball generated in room d7aed at (14, 4)
+[2026-03-21T21:30:16.779Z] [DISCONNECT] Client disconnected: 8984pMZOHDBz-erFAAAB
+[2026-03-21T21:30:16.780Z] [DISCONNECT] Socket 8984pMZOHDBz-erFAAAB disconnected before login
+[2026-03-21T21:30:18.905Z] [DISCONNECT] Client disconnected: mZCjMEGXvop32wopAAAF
+[2026-03-21T21:30:18.905Z] [DISCONNECT] Identified user: TEST_PROLIFIC_hqt0me6t1 (3nyuvvr66)
+[2026-03-21T21:30:18.906Z] [DISCONNECT] User TEST_PROLIFIC_hqt0me6t1 (3nyuvvr66) left room d7aed
+[2026-03-21T21:30:18.906Z] [DISCONNECT] Room d7aed has 4 users remaining: TEST_PROLIFIC_hqt0me6t1, DUMMY_9vhj, DUMMY_ipel, DUMMY_8evl
+[2026-03-21T21:31:06.490Z] [LOGGING] Log level set to: all
+[2026-03-21T21:31:06.493Z] Server running on port 5000
+[2026-03-21T21:31:15.993Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:31:15.994Z] New client connected: tSl3B8LmINE4CcpJAAAB
+[2026-03-21T21:31:15.994Z] → mode = punish
+[2026-03-21T21:31:15.994Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:31:15.994Z] New client connected: tSl3B8LmINE4CcpJAAAB
+[2026-03-21T21:31:16.009Z] [LOGIN] Login request from socket tSl3B8LmINE4CcpJAAAB, username: TEST_PROLIFIC_jrc29kyrm
+[2026-03-21T21:31:16.010Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_jrc29kyrm (userId: wf6h4nsm8, socket: tSl3B8LmINE4CcpJAAAB)
+[2026-03-21T21:31:16.057Z] [WAITING_LIST] Join request from socket tSl3B8LmINE4CcpJAAAB, userId: wf6h4nsm8
+[2026-03-21T21:31:16.058Z] [WAITING_LIST] User TEST_PROLIFIC_jrc29kyrm (wf6h4nsm8) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:31:16.058Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:31:16.058Z] Test mode: added dummy user DUMMY_taxk to waiting list.
+[2026-03-21T21:31:16.058Z] Test mode: added dummy user DUMMY_32ib to waiting list.
+[2026-03-21T21:31:16.058Z] Test mode: added dummy user DUMMY_kju6 to waiting list.
+[2026-03-21T21:31:16.058Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:31:16.058Z] [ROOM_ASSIGNED] Creating room bc61b with 4 users
+[2026-03-21T21:31:16.058Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_jrc29kyrm (wf6h4nsm8) assigned to room bc61b as player 1
+[2026-03-21T21:31:16.058Z] [ROOM_ASSIGNED] User DUMMY_taxk (dummy_x6b5md9rn) assigned to room bc61b as player 2
+[2026-03-21T21:31:16.058Z] [ROOM_ASSIGNED] User DUMMY_32ib (dummy_snibdfwwo) assigned to room bc61b as player 3
+[2026-03-21T21:31:16.058Z] [ROOM_ASSIGNED] User DUMMY_kju6 (dummy_rl6mziad9) assigned to room bc61b as player 4
+[2026-03-21T21:31:16.059Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_jrc29kyrm (socket: tSl3B8LmINE4CcpJAAAB)
+[2026-03-21T21:31:16.059Z] [ROOM_ASSIGNED] Dummy user DUMMY_taxk has no socket (test mode)
+[2026-03-21T21:31:16.059Z] [ROOM_ASSIGNED] Dummy user DUMMY_32ib has no socket (test mode)
+[2026-03-21T21:31:16.059Z] [ROOM_ASSIGNED] Dummy user DUMMY_kju6 has no socket (test mode)
+[2026-03-21T21:31:16.059Z] [ROOM_ASSIGNED] ✅ Room bc61b fully assigned with users: TEST_PROLIFIC_jrc29kyrm, DUMMY_taxk, DUMMY_32ib, DUMMY_kju6
+[2026-03-21T21:31:16.060Z] [JOIN_ROOM] Request from socket tSl3B8LmINE4CcpJAAAB, userId: wf6h4nsm8, roomId: bc61b
+[2026-03-21T21:31:16.060Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_jrc29kyrm joined room bc61b (socket: tSl3B8LmINE4CcpJAAAB)
+[2026-03-21T21:31:16.060Z] [JOIN_ROOM] Room bc61b now has 4 users in socket room
+[2026-03-21T21:31:22.197Z] [START_GRID_GAME] Request received from socket tSl3B8LmINE4CcpJAAAB, roomId: bc61b
+[2026-03-21T21:31:22.198Z] [START_GRID_GAME] Socket tSl3B8LmINE4CcpJAAAB maps to userId: wf6h4nsm8
+[2026-03-21T21:31:22.198Z] [START_GRID_GAME] ✅ Starting grid game for room bc61b
+[2026-03-21T21:31:22.198Z] [START_GRID_GAME] Cleared chat messages for room bc61b
+[2026-03-21T21:31:22.198Z] [START_GRID_GAME] Room bc61b has 4 users: TEST_PROLIFIC_jrc29kyrm, DUMMY_taxk, DUMMY_32ib, DUMMY_kju6
+[2026-03-21T21:31:22.198Z] [TIMER] startRoomTimer called for room bc61b
+[2026-03-21T21:31:22.198Z] [TIMER] ✅ Game marked as started for room bc61b
+[2026-03-21T21:31:22.198Z] [TIMER] Start time for room bc61b is Sat Mar 21 2026 23:31:22 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:31:22.198Z] [TIMER] Initialized stars and balls arrays for room bc61b
+[2026-03-21T21:31:22.198Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_bc61b
+[2026-03-21T21:31:23.200Z] New star generated in room bc61b at (0, 3)
+[2026-03-21T21:31:24.049Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:31:24.200Z] New star generated in room bc61b at (2, 7)
+[2026-03-21T21:31:24.200Z] New ball generated in room bc61b at (12, 2)
+[2026-03-21T21:31:25.200Z] New ball generated in room bc61b at (12, 7)
+[2026-03-21T21:31:26.202Z] New star generated in room bc61b at (1, 3)
+[2026-03-21T21:31:28.126Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:31:28.203Z] New star generated in room bc61b at (2, 3)
+[2026-03-21T21:31:29.204Z] New star generated in room bc61b at (1, 5)
+[2026-03-21T21:31:29.204Z] New ball generated in room bc61b at (12, 4)
+[2026-03-21T21:31:30.205Z] New ball generated in room bc61b at (12, 3)
+[2026-03-21T21:31:33.158Z] ❌ DB Error: Error: Access denied for user 'uri'@'localhost' (using password: YES)
+[2026-03-21T21:31:33.208Z] New star generated in room bc61b at (2, 0)
+[2026-03-21T21:33:19.390Z] [LOGGING] Log level set to: all
+[2026-03-21T21:33:19.394Z] Server running on port 5000
+[2026-03-21T21:33:24.282Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:33:24.282Z] New client connected: g_7QNAxO4L2sKW1DAAAB
+[2026-03-21T21:33:24.282Z] → mode = punish
+[2026-03-21T21:33:24.282Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:33:24.283Z] New client connected: g_7QNAxO4L2sKW1DAAAB
+[2026-03-21T21:33:24.303Z] [LOGIN] Login request from socket g_7QNAxO4L2sKW1DAAAB, username: TEST_PROLIFIC_u3g1z4ptc
+[2026-03-21T21:33:24.304Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_u3g1z4ptc (userId: ncb5pctz3, socket: g_7QNAxO4L2sKW1DAAAB)
+[2026-03-21T21:33:24.357Z] [WAITING_LIST] Join request from socket g_7QNAxO4L2sKW1DAAAB, userId: ncb5pctz3
+[2026-03-21T21:33:24.357Z] [WAITING_LIST] User TEST_PROLIFIC_u3g1z4ptc (ncb5pctz3) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:33:24.357Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:33:24.357Z] Test mode: added dummy user DUMMY_hbvl to waiting list.
+[2026-03-21T21:33:24.357Z] Test mode: added dummy user DUMMY_69b2 to waiting list.
+[2026-03-21T21:33:24.357Z] Test mode: added dummy user DUMMY_mjmh to waiting list.
+[2026-03-21T21:33:24.357Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] Creating room 46369 with 4 users
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_u3g1z4ptc (ncb5pctz3) assigned to room 46369 as player 1
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] User DUMMY_hbvl (dummy_8o5te4ayu) assigned to room 46369 as player 2
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] User DUMMY_69b2 (dummy_ufpcqv5g8) assigned to room 46369 as player 3
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] User DUMMY_mjmh (dummy_or2wz00mn) assigned to room 46369 as player 4
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_u3g1z4ptc (socket: g_7QNAxO4L2sKW1DAAAB)
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] Dummy user DUMMY_hbvl has no socket (test mode)
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] Dummy user DUMMY_69b2 has no socket (test mode)
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] Dummy user DUMMY_mjmh has no socket (test mode)
+[2026-03-21T21:33:24.358Z] [ROOM_ASSIGNED] ✅ Room 46369 fully assigned with users: TEST_PROLIFIC_u3g1z4ptc, DUMMY_hbvl, DUMMY_69b2, DUMMY_mjmh
+[2026-03-21T21:33:24.360Z] [JOIN_ROOM] Request from socket g_7QNAxO4L2sKW1DAAAB, userId: ncb5pctz3, roomId: 46369
+[2026-03-21T21:33:24.360Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_u3g1z4ptc joined room 46369 (socket: g_7QNAxO4L2sKW1DAAAB)
+[2026-03-21T21:33:24.360Z] [JOIN_ROOM] Room 46369 now has 4 users in socket room
+[2026-03-21T21:33:30.506Z] [START_GRID_GAME] Request received from socket g_7QNAxO4L2sKW1DAAAB, roomId: 46369
+[2026-03-21T21:33:30.506Z] [START_GRID_GAME] Socket g_7QNAxO4L2sKW1DAAAB maps to userId: ncb5pctz3
+[2026-03-21T21:33:30.506Z] [START_GRID_GAME] ✅ Starting grid game for room 46369
+[2026-03-21T21:33:30.506Z] [START_GRID_GAME] Cleared chat messages for room 46369
+[2026-03-21T21:33:30.506Z] [START_GRID_GAME] Room 46369 has 4 users: TEST_PROLIFIC_u3g1z4ptc, DUMMY_hbvl, DUMMY_69b2, DUMMY_mjmh
+[2026-03-21T21:33:30.506Z] [TIMER] startRoomTimer called for room 46369
+[2026-03-21T21:33:30.506Z] [TIMER] ✅ Game marked as started for room 46369
+[2026-03-21T21:33:30.506Z] [TIMER] Start time for room 46369 is Sat Mar 21 2026 23:33:30 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:33:30.506Z] [TIMER] Initialized stars and balls arrays for room 46369
+[2026-03-21T21:33:30.507Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_46369
+[2026-03-21T21:33:31.507Z] New ball generated in room 46369 at (13, 8)
+[2026-03-21T21:33:31.554Z] ❌ DB Error: Error: Unknown column 'punishment_message' in 'field list'
+[2026-03-21T21:33:33.510Z] New ball generated in room 46369 at (13, 5)
+[2026-03-21T21:33:35.116Z] ❌ DB Error: Error: Unknown column 'punishment_message' in 'field list'
+[2026-03-21T21:33:37.515Z] New star generated in room 46369 at (2, 0)
+[2026-03-21T21:33:37.516Z] New ball generated in room 46369 at (12, 5)
+[2026-03-21T21:33:38.515Z] New ball generated in room 46369 at (13, 7)
+[2026-03-21T21:33:38.640Z] ❌ DB Error: Error: Unknown column 'punishment_message' in 'field list'
+[2026-03-21T21:35:00.478Z] [LOGGING] Log level set to: all
+[2026-03-21T21:35:00.481Z] Server running on port 5000
+[2026-03-21T21:35:02.521Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:35:02.521Z] New client connected: x4eoGWzFG8h5pZUfAAAB
+[2026-03-21T21:35:02.521Z] → mode = punish
+[2026-03-21T21:35:02.521Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:35:02.522Z] New client connected: x4eoGWzFG8h5pZUfAAAB
+[2026-03-21T21:35:02.545Z] [LOGIN] Login request from socket x4eoGWzFG8h5pZUfAAAB, username: TEST_PROLIFIC_cm09skrpa
+[2026-03-21T21:35:02.545Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_cm09skrpa (userId: tf5bwm9i8, socket: x4eoGWzFG8h5pZUfAAAB)
+[2026-03-21T21:35:02.633Z] [WAITING_LIST] Join request from socket x4eoGWzFG8h5pZUfAAAB, userId: tf5bwm9i8
+[2026-03-21T21:35:02.633Z] [WAITING_LIST] User TEST_PROLIFIC_cm09skrpa (tf5bwm9i8) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:35:02.633Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:35:02.633Z] Test mode: added dummy user DUMMY_qy8m to waiting list.
+[2026-03-21T21:35:02.633Z] Test mode: added dummy user DUMMY_ebh9 to waiting list.
+[2026-03-21T21:35:02.633Z] Test mode: added dummy user DUMMY_qjxk to waiting list.
+[2026-03-21T21:35:02.633Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:35:02.633Z] [ROOM_ASSIGNED] Creating room 5411f with 4 users
+[2026-03-21T21:35:02.633Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_cm09skrpa (tf5bwm9i8) assigned to room 5411f as player 1
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] User DUMMY_qy8m (dummy_s9bbxfimw) assigned to room 5411f as player 2
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] User DUMMY_ebh9 (dummy_uqx15cqlt) assigned to room 5411f as player 3
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] User DUMMY_qjxk (dummy_i8cena2un) assigned to room 5411f as player 4
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_cm09skrpa (socket: x4eoGWzFG8h5pZUfAAAB)
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] Dummy user DUMMY_qy8m has no socket (test mode)
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] Dummy user DUMMY_ebh9 has no socket (test mode)
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] Dummy user DUMMY_qjxk has no socket (test mode)
+[2026-03-21T21:35:02.634Z] [ROOM_ASSIGNED] ✅ Room 5411f fully assigned with users: TEST_PROLIFIC_cm09skrpa, DUMMY_qy8m, DUMMY_ebh9, DUMMY_qjxk
+[2026-03-21T21:35:02.639Z] [JOIN_ROOM] Request from socket x4eoGWzFG8h5pZUfAAAB, userId: tf5bwm9i8, roomId: 5411f
+[2026-03-21T21:35:02.639Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_cm09skrpa joined room 5411f (socket: x4eoGWzFG8h5pZUfAAAB)
+[2026-03-21T21:35:02.639Z] [JOIN_ROOM] Room 5411f now has 4 users in socket room
+[2026-03-21T21:35:09.157Z] [START_GRID_GAME] Request received from socket x4eoGWzFG8h5pZUfAAAB, roomId: 5411f
+[2026-03-21T21:35:09.157Z] [START_GRID_GAME] Socket x4eoGWzFG8h5pZUfAAAB maps to userId: tf5bwm9i8
+[2026-03-21T21:35:09.157Z] [START_GRID_GAME] ✅ Starting grid game for room 5411f
+[2026-03-21T21:35:09.157Z] [START_GRID_GAME] Cleared chat messages for room 5411f
+[2026-03-21T21:35:09.157Z] [START_GRID_GAME] Room 5411f has 4 users: TEST_PROLIFIC_cm09skrpa, DUMMY_qy8m, DUMMY_ebh9, DUMMY_qjxk
+[2026-03-21T21:35:09.157Z] [TIMER] startRoomTimer called for room 5411f
+[2026-03-21T21:35:09.157Z] [TIMER] ✅ Game marked as started for room 5411f
+[2026-03-21T21:35:09.157Z] [TIMER] Start time for room 5411f is Sat Mar 21 2026 23:35:09 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:35:09.157Z] [TIMER] Initialized stars and balls arrays for room 5411f
+[2026-03-21T21:35:09.157Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_5411f
+[2026-03-21T21:35:10.159Z] New star generated in room 5411f at (0, 7)
+[2026-03-21T21:35:10.456Z] ✅ Punishment saved: tf5bwm9i8 ➡️ dummy_uqx15cqlt ("Need your help here.")
+[2026-03-21T21:35:11.159Z] New star generated in room 5411f at (0, 2)
+[2026-03-21T21:35:11.160Z] New ball generated in room 5411f at (12, 0)
+[2026-03-21T21:35:12.161Z] New star generated in room 5411f at (1, 4)
+[2026-03-21T21:35:13.162Z] New star generated in room 5411f at (2, 3)
+[2026-03-21T21:35:13.162Z] New ball generated in room 5411f at (13, 9)
+[2026-03-21T21:35:14.163Z] New star generated in room 5411f at (0, 1)
+[2026-03-21T21:35:14.163Z] New ball generated in room 5411f at (14, 6)
+[2026-03-21T21:35:14.238Z] ✅ Punishment saved: tf5bwm9i8 ➡️ dummy_i8cena2un ("Your effort is needed.")
+[2026-03-21T21:35:15.164Z] New ball generated in room 5411f at (14, 4)
+[2026-03-21T21:35:17.165Z] New ball generated in room 5411f at (12, 5)
+[2026-03-21T21:35:19.047Z] ✅ Punishment saved: tf5bwm9i8 ➡️ dummy_s9bbxfimw ("Your effort is needed.")
+[2026-03-21T21:35:19.166Z] New star generated in room 5411f at (2, 0)
+[2026-03-21T21:35:19.166Z] New ball generated in room 5411f at (12, 2)
+[2026-03-21T21:36:15.764Z] [DISCONNECT] Client disconnected: x4eoGWzFG8h5pZUfAAAB
+[2026-03-21T21:36:15.765Z] [DISCONNECT] Identified user: TEST_PROLIFIC_cm09skrpa (tf5bwm9i8)
+[2026-03-21T21:36:15.765Z] [DISCONNECT] User TEST_PROLIFIC_cm09skrpa (tf5bwm9i8) left room 5411f
+[2026-03-21T21:36:15.765Z] [DISCONNECT] Room 5411f has 4 users remaining: TEST_PROLIFIC_cm09skrpa, DUMMY_qy8m, DUMMY_ebh9, DUMMY_qjxk
+[2026-03-21T21:36:15.844Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:36:15.844Z] New client connected: s6YHTrKLFis2ucW_AAAD
+[2026-03-21T21:36:15.844Z] → mode = punish
+[2026-03-21T21:36:15.844Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:36:15.844Z] New client connected: s6YHTrKLFis2ucW_AAAD
+[2026-03-21T21:36:15.860Z] [LOGIN] Login request from socket s6YHTrKLFis2ucW_AAAD, username: TEST_PROLIFIC_dvwhu04ud
+[2026-03-21T21:36:15.860Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_dvwhu04ud (userId: 249h6u9sk, socket: s6YHTrKLFis2ucW_AAAD)
+[2026-03-21T21:36:15.908Z] [WAITING_LIST] Join request from socket s6YHTrKLFis2ucW_AAAD, userId: 249h6u9sk
+[2026-03-21T21:36:15.909Z] [WAITING_LIST] User TEST_PROLIFIC_dvwhu04ud (249h6u9sk) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:36:15.909Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:36:15.909Z] Test mode: added dummy user DUMMY_uwef to waiting list.
+[2026-03-21T21:36:15.909Z] Test mode: added dummy user DUMMY_cq8y to waiting list.
+[2026-03-21T21:36:15.909Z] Test mode: added dummy user DUMMY_fgy1 to waiting list.
+[2026-03-21T21:36:15.909Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] Creating room 45143 with 4 users
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_dvwhu04ud (249h6u9sk) assigned to room 45143 as player 1
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] User DUMMY_uwef (dummy_b5hhyq4sw) assigned to room 45143 as player 2
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] User DUMMY_cq8y (dummy_ko1slq5p5) assigned to room 45143 as player 3
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] User DUMMY_fgy1 (dummy_xllz2se1d) assigned to room 45143 as player 4
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_dvwhu04ud (socket: s6YHTrKLFis2ucW_AAAD)
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] Dummy user DUMMY_uwef has no socket (test mode)
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] Dummy user DUMMY_cq8y has no socket (test mode)
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] Dummy user DUMMY_fgy1 has no socket (test mode)
+[2026-03-21T21:36:15.909Z] [ROOM_ASSIGNED] ✅ Room 45143 fully assigned with users: TEST_PROLIFIC_dvwhu04ud, DUMMY_uwef, DUMMY_cq8y, DUMMY_fgy1
+[2026-03-21T21:36:15.910Z] [JOIN_ROOM] Request from socket s6YHTrKLFis2ucW_AAAD, userId: 249h6u9sk, roomId: 45143
+[2026-03-21T21:36:15.910Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_dvwhu04ud joined room 45143 (socket: s6YHTrKLFis2ucW_AAAD)
+[2026-03-21T21:36:15.910Z] [JOIN_ROOM] Room 45143 now has 4 users in socket room
+[2026-03-21T21:36:22.206Z] [START_GRID_GAME] Request received from socket s6YHTrKLFis2ucW_AAAD, roomId: 45143
+[2026-03-21T21:36:22.206Z] [START_GRID_GAME] Socket s6YHTrKLFis2ucW_AAAD maps to userId: 249h6u9sk
+[2026-03-21T21:36:22.207Z] [START_GRID_GAME] ✅ Starting grid game for room 45143
+[2026-03-21T21:36:22.207Z] [START_GRID_GAME] Cleared chat messages for room 45143
+[2026-03-21T21:36:22.207Z] [START_GRID_GAME] Room 45143 has 4 users: TEST_PROLIFIC_dvwhu04ud, DUMMY_uwef, DUMMY_cq8y, DUMMY_fgy1
+[2026-03-21T21:36:22.207Z] [TIMER] startRoomTimer called for room 45143
+[2026-03-21T21:36:22.207Z] [TIMER] ✅ Game marked as started for room 45143
+[2026-03-21T21:36:22.207Z] [TIMER] Start time for room 45143 is Sat Mar 21 2026 23:36:22 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:36:22.207Z] [TIMER] Initialized stars and balls arrays for room 45143
+[2026-03-21T21:36:22.208Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_45143
+[2026-03-21T21:36:23.168Z] ✅ Punishment saved: 249h6u9sk ➡️ dummy_ko1slq5p5 ("Need your help here.")
+[2026-03-21T21:36:25.208Z] New star generated in room 45143 at (1, 4)
+[2026-03-21T21:36:26.208Z] New star generated in room 45143 at (0, 5)
+[2026-03-21T21:36:26.208Z] New ball generated in room 45143 at (14, 4)
+[2026-03-21T21:36:26.776Z] ✅ Punishment saved: 249h6u9sk ➡️ dummy_b5hhyq4sw ("Need your help here.")
+[2026-03-21T21:36:27.208Z] New ball generated in room 45143 at (12, 4)
+[2026-03-21T21:36:28.209Z] New ball generated in room 45143 at (14, 3)
+[2026-03-21T21:36:30.211Z] New star generated in room 45143 at (0, 2)
+[2026-03-21T21:36:30.211Z] New ball generated in room 45143 at (13, 7)
+[2026-03-21T21:36:31.211Z] New ball generated in room 45143 at (12, 8)
+[2026-03-21T21:36:32.144Z] [DISCONNECT] Client disconnected: s6YHTrKLFis2ucW_AAAD
+[2026-03-21T21:36:32.145Z] [DISCONNECT] Identified user: TEST_PROLIFIC_dvwhu04ud (249h6u9sk)
+[2026-03-21T21:36:32.145Z] [DISCONNECT] User TEST_PROLIFIC_dvwhu04ud (249h6u9sk) left room 45143
+[2026-03-21T21:36:32.145Z] [DISCONNECT] Room 45143 has 4 users remaining: TEST_PROLIFIC_dvwhu04ud, DUMMY_uwef, DUMMY_cq8y, DUMMY_fgy1
+[2026-03-21T21:36:32.211Z] New ball generated in room 45143 at (13, 0)
+[2026-03-21T21:36:32.365Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:36:32.365Z] New client connected: beVQNhs5VfZnFDthAAAF
+[2026-03-21T21:36:32.365Z] → mode = punish
+[2026-03-21T21:36:32.365Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:36:32.365Z] New client connected: beVQNhs5VfZnFDthAAAF
+[2026-03-21T21:36:32.382Z] [LOGIN] Login request from socket beVQNhs5VfZnFDthAAAF, username: TEST_PROLIFIC_jibq1g8gu
+[2026-03-21T21:36:32.382Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_jibq1g8gu (userId: viwz80i5r, socket: beVQNhs5VfZnFDthAAAF)
+[2026-03-21T21:36:32.436Z] [WAITING_LIST] Join request from socket beVQNhs5VfZnFDthAAAF, userId: viwz80i5r
+[2026-03-21T21:36:32.437Z] [WAITING_LIST] User TEST_PROLIFIC_jibq1g8gu (viwz80i5r) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:36:32.437Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:36:32.437Z] Test mode: added dummy user DUMMY_3q01 to waiting list.
+[2026-03-21T21:36:32.437Z] Test mode: added dummy user DUMMY_xvsa to waiting list.
+[2026-03-21T21:36:32.437Z] Test mode: added dummy user DUMMY_hvlp to waiting list.
+[2026-03-21T21:36:32.437Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] Creating room 47c2b with 4 users
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_jibq1g8gu (viwz80i5r) assigned to room 47c2b as player 1
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] User DUMMY_3q01 (dummy_z6a7z3b99) assigned to room 47c2b as player 2
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] User DUMMY_xvsa (dummy_w0uykkbrf) assigned to room 47c2b as player 3
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] User DUMMY_hvlp (dummy_zpc3echrn) assigned to room 47c2b as player 4
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_jibq1g8gu (socket: beVQNhs5VfZnFDthAAAF)
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] Dummy user DUMMY_3q01 has no socket (test mode)
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] Dummy user DUMMY_xvsa has no socket (test mode)
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] Dummy user DUMMY_hvlp has no socket (test mode)
+[2026-03-21T21:36:32.437Z] [ROOM_ASSIGNED] ✅ Room 47c2b fully assigned with users: TEST_PROLIFIC_jibq1g8gu, DUMMY_3q01, DUMMY_xvsa, DUMMY_hvlp
+[2026-03-21T21:36:32.438Z] [JOIN_ROOM] Request from socket beVQNhs5VfZnFDthAAAF, userId: viwz80i5r, roomId: 47c2b
+[2026-03-21T21:36:32.438Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_jibq1g8gu joined room 47c2b (socket: beVQNhs5VfZnFDthAAAF)
+[2026-03-21T21:36:32.438Z] [JOIN_ROOM] Room 47c2b now has 4 users in socket room
+[2026-03-21T21:36:33.211Z] New ball generated in room 45143 at (12, 5)
+[2026-03-21T21:36:38.541Z] [START_GRID_GAME] Request received from socket beVQNhs5VfZnFDthAAAF, roomId: 47c2b
+[2026-03-21T21:36:38.541Z] [START_GRID_GAME] Socket beVQNhs5VfZnFDthAAAF maps to userId: viwz80i5r
+[2026-03-21T21:36:38.541Z] [START_GRID_GAME] ✅ Starting grid game for room 47c2b
+[2026-03-21T21:36:38.541Z] [START_GRID_GAME] Cleared chat messages for room 47c2b
+[2026-03-21T21:36:38.541Z] [START_GRID_GAME] Room 47c2b has 4 users: TEST_PROLIFIC_jibq1g8gu, DUMMY_3q01, DUMMY_xvsa, DUMMY_hvlp
+[2026-03-21T21:36:38.541Z] [TIMER] startRoomTimer called for room 47c2b
+[2026-03-21T21:36:38.541Z] [TIMER] ✅ Game marked as started for room 47c2b
+[2026-03-21T21:36:38.541Z] [TIMER] Start time for room 47c2b is Sat Mar 21 2026 23:36:38 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:36:38.541Z] [TIMER] Initialized stars and balls arrays for room 47c2b
+[2026-03-21T21:36:38.542Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_47c2b
+[2026-03-21T21:36:39.356Z] ✅ Punishment saved: viwz80i5r ➡️ dummy_z6a7z3b99 ("Step up your game.")
+[2026-03-21T21:36:39.542Z] New star generated in room 47c2b at (0, 4)
+[2026-03-21T21:36:40.543Z] New star generated in room 47c2b at (2, 3)
+[2026-03-21T21:36:40.543Z] New ball generated in room 47c2b at (14, 1)
+[2026-03-21T21:36:41.544Z] New star generated in room 47c2b at (1, 9)
+[2026-03-21T21:36:41.544Z] New ball generated in room 47c2b at (12, 8)
+[2026-03-21T21:36:42.545Z] New ball generated in room 47c2b at (14, 4)
+[2026-03-21T21:36:43.546Z] New ball generated in room 47c2b at (14, 5)
+[2026-03-21T21:36:44.547Z] New ball generated in room 47c2b at (14, 9)
+[2026-03-21T21:36:45.548Z] New ball generated in room 47c2b at (14, 6)
+[2026-03-21T21:36:47.549Z] New star generated in room 47c2b at (2, 9)
+[2026-03-21T21:36:47.549Z] New ball generated in room 47c2b at (12, 0)
+[2026-03-21T21:36:48.551Z] New star generated in room 47c2b at (2, 1)
+[2026-03-21T21:36:48.552Z] New ball generated in room 47c2b at (12, 9)
+[2026-03-21T21:36:49.552Z] New ball generated in room 47c2b at (13, 4)
+[2026-03-21T21:38:10.290Z] [LOGGING] Log level set to: all
+[2026-03-21T21:38:10.294Z] Server running on port 5000
+[2026-03-21T21:38:12.655Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:38:12.656Z] New client connected: fh7tyU-3kGcuT_vtAAAB
+[2026-03-21T21:38:12.656Z] → mode = punish
+[2026-03-21T21:38:12.656Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:38:12.657Z] New client connected: fh7tyU-3kGcuT_vtAAAB
+[2026-03-21T21:38:15.703Z] [DISCONNECT] Client disconnected: fh7tyU-3kGcuT_vtAAAB
+[2026-03-21T21:38:15.703Z] [DISCONNECT] Socket fh7tyU-3kGcuT_vtAAAB disconnected before login
+[2026-03-21T21:38:15.806Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:38:15.806Z] New client connected: nOA_XTpKHkexLjDuAAAD
+[2026-03-21T21:38:15.806Z] → mode = punish
+[2026-03-21T21:38:15.806Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:38:15.806Z] New client connected: nOA_XTpKHkexLjDuAAAD
+[2026-03-21T21:38:15.814Z] [LOGIN] Login request from socket nOA_XTpKHkexLjDuAAAD, username: TEST_PROLIFIC_xlvzm1bfv
+[2026-03-21T21:38:15.814Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_xlvzm1bfv (userId: 84m10k0fz, socket: nOA_XTpKHkexLjDuAAAD)
+[2026-03-21T21:38:15.869Z] [WAITING_LIST] Join request from socket nOA_XTpKHkexLjDuAAAD, userId: 84m10k0fz
+[2026-03-21T21:38:15.869Z] [WAITING_LIST] User TEST_PROLIFIC_xlvzm1bfv (84m10k0fz) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:38:15.870Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:38:15.870Z] Test mode: added dummy user DUMMY_an1x to waiting list.
+[2026-03-21T21:38:15.870Z] Test mode: added dummy user DUMMY_jn63 to waiting list.
+[2026-03-21T21:38:15.870Z] Test mode: added dummy user DUMMY_xiy2 to waiting list.
+[2026-03-21T21:38:15.870Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:38:15.870Z] [ROOM_ASSIGNED] Creating room ecc33 with 4 users
+[2026-03-21T21:38:15.870Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_xlvzm1bfv (84m10k0fz) assigned to room ecc33 as player 1
+[2026-03-21T21:38:15.870Z] [ROOM_ASSIGNED] User DUMMY_an1x (dummy_ecj13uu9j) assigned to room ecc33 as player 2
+[2026-03-21T21:38:15.870Z] [ROOM_ASSIGNED] User DUMMY_jn63 (dummy_dagc9ci1l) assigned to room ecc33 as player 3
+[2026-03-21T21:38:15.870Z] [ROOM_ASSIGNED] User DUMMY_xiy2 (dummy_p6qv3h39i) assigned to room ecc33 as player 4
+[2026-03-21T21:38:15.871Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_xlvzm1bfv (socket: nOA_XTpKHkexLjDuAAAD)
+[2026-03-21T21:38:15.871Z] [ROOM_ASSIGNED] Dummy user DUMMY_an1x has no socket (test mode)
+[2026-03-21T21:38:15.871Z] [ROOM_ASSIGNED] Dummy user DUMMY_jn63 has no socket (test mode)
+[2026-03-21T21:38:15.871Z] [ROOM_ASSIGNED] Dummy user DUMMY_xiy2 has no socket (test mode)
+[2026-03-21T21:38:15.871Z] [ROOM_ASSIGNED] ✅ Room ecc33 fully assigned with users: TEST_PROLIFIC_xlvzm1bfv, DUMMY_an1x, DUMMY_jn63, DUMMY_xiy2
+[2026-03-21T21:38:15.872Z] [JOIN_ROOM] Request from socket nOA_XTpKHkexLjDuAAAD, userId: 84m10k0fz, roomId: ecc33
+[2026-03-21T21:38:15.873Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_xlvzm1bfv joined room ecc33 (socket: nOA_XTpKHkexLjDuAAAD)
+[2026-03-21T21:38:15.873Z] [JOIN_ROOM] Room ecc33 now has 4 users in socket room
+[2026-03-21T21:38:22.324Z] [START_GRID_GAME] Request received from socket nOA_XTpKHkexLjDuAAAD, roomId: ecc33
+[2026-03-21T21:38:22.324Z] [START_GRID_GAME] Socket nOA_XTpKHkexLjDuAAAD maps to userId: 84m10k0fz
+[2026-03-21T21:38:22.324Z] [START_GRID_GAME] ✅ Starting grid game for room ecc33
+[2026-03-21T21:38:22.324Z] [START_GRID_GAME] Cleared chat messages for room ecc33
+[2026-03-21T21:38:22.324Z] [START_GRID_GAME] Room ecc33 has 4 users: TEST_PROLIFIC_xlvzm1bfv, DUMMY_an1x, DUMMY_jn63, DUMMY_xiy2
+[2026-03-21T21:38:22.325Z] [TIMER] startRoomTimer called for room ecc33
+[2026-03-21T21:38:22.325Z] [TIMER] ✅ Game marked as started for room ecc33
+[2026-03-21T21:38:22.325Z] [TIMER] Start time for room ecc33 is Sat Mar 21 2026 23:38:22 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:38:22.325Z] [TIMER] Initialized stars and balls arrays for room ecc33
+[2026-03-21T21:38:22.325Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_ecc33
+[2026-03-21T21:38:23.079Z] ✅ Punishment saved: 84m10k0fz ➡️ dummy_dagc9ci1l ("Your effort is needed.")
+[2026-03-21T21:38:23.326Z] New star generated in room ecc33 at (2, 0)
+[2026-03-21T21:38:23.326Z] New ball generated in room ecc33 at (12, 6)
+[2026-03-21T21:38:24.326Z] New ball generated in room ecc33 at (13, 9)
+[2026-03-21T21:38:25.998Z] New client connected: x79AN6Ei7Tx86qutAAAF
+[2026-03-21T21:38:25.998Z] → mode = full
+[2026-03-21T21:38:25.998Z] → groupSize = 4, punishments = false, praise = false, waterCue = false
+[2026-03-21T21:38:25.998Z] New client connected: x79AN6Ei7Tx86qutAAAF
+[2026-03-21T21:38:27.327Z] New star generated in room ecc33 at (0, 2)
+[2026-03-21T21:38:28.329Z] New ball generated in room ecc33 at (13, 7)
+[2026-03-21T21:38:29.330Z] New ball generated in room ecc33 at (13, 8)
+[2026-03-21T21:38:30.331Z] New ball generated in room ecc33 at (12, 1)
+[2026-03-21T21:38:30.829Z] [DISCONNECT] Client disconnected: x79AN6Ei7Tx86qutAAAF
+[2026-03-21T21:38:30.829Z] [DISCONNECT] Socket x79AN6Ei7Tx86qutAAAF disconnected before login
+[2026-03-21T21:38:31.331Z] New ball generated in room ecc33 at (12, 7)
+[2026-03-21T21:38:34.654Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:38:34.654Z] New client connected: m1-k56_XdhO5rds3AAAH
+[2026-03-21T21:38:34.654Z] → mode = punish
+[2026-03-21T21:38:34.654Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:38:34.654Z] New client connected: m1-k56_XdhO5rds3AAAH
+[2026-03-21T21:38:34.670Z] [LOGIN] Login request from socket m1-k56_XdhO5rds3AAAH, username: TEST_PROLIFIC_25ydirxck
+[2026-03-21T21:38:34.670Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_25ydirxck (userId: hyq9dp64g, socket: m1-k56_XdhO5rds3AAAH)
+[2026-03-21T21:38:34.717Z] [WAITING_LIST] Join request from socket m1-k56_XdhO5rds3AAAH, userId: hyq9dp64g
+[2026-03-21T21:38:34.717Z] [WAITING_LIST] User TEST_PROLIFIC_25ydirxck (hyq9dp64g) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:38:34.717Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:38:34.717Z] Test mode: added dummy user DUMMY_8rut to waiting list.
+[2026-03-21T21:38:34.717Z] Test mode: added dummy user DUMMY_bppn to waiting list.
+[2026-03-21T21:38:34.717Z] Test mode: added dummy user DUMMY_yr1w to waiting list.
+[2026-03-21T21:38:34.717Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] Creating room a67f7 with 4 users
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_25ydirxck (hyq9dp64g) assigned to room a67f7 as player 1
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] User DUMMY_8rut (dummy_m01j7m0td) assigned to room a67f7 as player 2
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] User DUMMY_bppn (dummy_lsrurqrox) assigned to room a67f7 as player 3
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] User DUMMY_yr1w (dummy_bvlfy86mz) assigned to room a67f7 as player 4
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_25ydirxck (socket: m1-k56_XdhO5rds3AAAH)
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] Dummy user DUMMY_8rut has no socket (test mode)
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] Dummy user DUMMY_bppn has no socket (test mode)
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] Dummy user DUMMY_yr1w has no socket (test mode)
+[2026-03-21T21:38:34.717Z] [ROOM_ASSIGNED] ✅ Room a67f7 fully assigned with users: TEST_PROLIFIC_25ydirxck, DUMMY_8rut, DUMMY_bppn, DUMMY_yr1w
+[2026-03-21T21:38:34.719Z] [JOIN_ROOM] Request from socket m1-k56_XdhO5rds3AAAH, userId: hyq9dp64g, roomId: a67f7
+[2026-03-21T21:38:34.719Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_25ydirxck joined room a67f7 (socket: m1-k56_XdhO5rds3AAAH)
+[2026-03-21T21:38:34.719Z] [JOIN_ROOM] Room a67f7 now has 4 users in socket room
+[2026-03-21T21:38:40.773Z] [START_GRID_GAME] Request received from socket m1-k56_XdhO5rds3AAAH, roomId: a67f7
+[2026-03-21T21:38:40.774Z] [START_GRID_GAME] Socket m1-k56_XdhO5rds3AAAH maps to userId: hyq9dp64g
+[2026-03-21T21:38:40.774Z] [START_GRID_GAME] ✅ Starting grid game for room a67f7
+[2026-03-21T21:38:40.774Z] [START_GRID_GAME] Cleared chat messages for room a67f7
+[2026-03-21T21:38:40.774Z] [START_GRID_GAME] Room a67f7 has 4 users: TEST_PROLIFIC_25ydirxck, DUMMY_8rut, DUMMY_bppn, DUMMY_yr1w
+[2026-03-21T21:38:40.774Z] [TIMER] startRoomTimer called for room a67f7
+[2026-03-21T21:38:40.774Z] [TIMER] ✅ Game marked as started for room a67f7
+[2026-03-21T21:38:40.774Z] [TIMER] Start time for room a67f7 is Sat Mar 21 2026 23:38:40 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:38:40.774Z] [TIMER] Initialized stars and balls arrays for room a67f7
+[2026-03-21T21:38:40.774Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_a67f7
+[2026-03-21T21:38:41.775Z] New star generated in room a67f7 at (0, 2)
+[2026-03-21T21:38:41.776Z] New ball generated in room a67f7 at (12, 4)
+[2026-03-21T21:38:41.947Z] ✅ Punishment saved: hyq9dp64g ➡️ dummy_lsrurqrox ("Need your help here.")
+[2026-03-21T21:38:42.775Z] New ball generated in room a67f7 at (12, 0)
+[2026-03-21T21:38:43.777Z] New star generated in room a67f7 at (1, 0)
+[2026-03-21T21:38:44.778Z] New star generated in room a67f7 at (2, 2)
+[2026-03-21T21:38:44.779Z] New ball generated in room a67f7 at (13, 1)
+[2026-03-21T21:38:46.781Z] New ball generated in room a67f7 at (14, 3)
+[2026-03-21T21:38:47.781Z] New ball generated in room a67f7 at (13, 8)
+[2026-03-21T21:38:49.783Z] New ball generated in room a67f7 at (13, 9)
+[2026-03-21T21:38:50.783Z] New ball generated in room a67f7 at (13, 7)
+[2026-03-21T21:38:53.650Z] [DISCONNECT] Client disconnected: m1-k56_XdhO5rds3AAAH
+[2026-03-21T21:38:53.651Z] [DISCONNECT] Identified user: TEST_PROLIFIC_25ydirxck (hyq9dp64g)
+[2026-03-21T21:38:53.651Z] [DISCONNECT] User TEST_PROLIFIC_25ydirxck (hyq9dp64g) left room a67f7
+[2026-03-21T21:38:53.651Z] [DISCONNECT] Room a67f7 has 4 users remaining: TEST_PROLIFIC_25ydirxck, DUMMY_8rut, DUMMY_bppn, DUMMY_yr1w
+[2026-03-21T21:38:53.809Z] Test mode enabled: taskTime set to 10 seconds
+[2026-03-21T21:38:53.809Z] New client connected: En6EBD5AyPgXHZFyAAAJ
+[2026-03-21T21:38:53.809Z] → mode = punish
+[2026-03-21T21:38:53.809Z] → groupSize = 4, punishments = true, praise = false, waterCue = false
+[2026-03-21T21:38:53.809Z] New client connected: En6EBD5AyPgXHZFyAAAJ
+[2026-03-21T21:38:53.837Z] [LOGIN] Login request from socket En6EBD5AyPgXHZFyAAAJ, username: TEST_PROLIFIC_55ymf9e7a
+[2026-03-21T21:38:53.837Z] [LOGIN] ✅ User Logged In: TEST_PROLIFIC_55ymf9e7a (userId: s1qvkpuhn, socket: En6EBD5AyPgXHZFyAAAJ)
+[2026-03-21T21:38:53.902Z] [WAITING_LIST] Join request from socket En6EBD5AyPgXHZFyAAAJ, userId: s1qvkpuhn
+[2026-03-21T21:38:53.902Z] [WAITING_LIST] User TEST_PROLIFIC_55ymf9e7a (s1qvkpuhn) joined the waiting list for mode:punish, groupSize:4
+[2026-03-21T21:38:53.902Z] [WAITING_LIST] Queue punish:4 now has 1 users
+[2026-03-21T21:38:53.902Z] Test mode: added dummy user DUMMY_dzff to waiting list.
+[2026-03-21T21:38:53.902Z] Test mode: added dummy user DUMMY_d0nr to waiting list.
+[2026-03-21T21:38:53.902Z] Test mode: added dummy user DUMMY_ljeo to waiting list.
+[2026-03-21T21:38:53.902Z] [WAITING_LIST] ✅ Enough users (4/4) to create room for punish:4
+[2026-03-21T21:38:53.902Z] [ROOM_ASSIGNED] Creating room b9166 with 4 users
+[2026-03-21T21:38:53.902Z] [ROOM_ASSIGNED] User TEST_PROLIFIC_55ymf9e7a (s1qvkpuhn) assigned to room b9166 as player 1
+[2026-03-21T21:38:53.902Z] [ROOM_ASSIGNED] User DUMMY_dzff (dummy_ils10jstr) assigned to room b9166 as player 2
+[2026-03-21T21:38:53.902Z] [ROOM_ASSIGNED] User DUMMY_d0nr (dummy_q1tnpti2l) assigned to room b9166 as player 3
+[2026-03-21T21:38:53.902Z] [ROOM_ASSIGNED] User DUMMY_ljeo (dummy_xyon1qmr3) assigned to room b9166 as player 4
+[2026-03-21T21:38:53.902Z] [ROOM_ASSIGNED] ✅ Sent room_assigned event to TEST_PROLIFIC_55ymf9e7a (socket: En6EBD5AyPgXHZFyAAAJ)
+[2026-03-21T21:38:53.903Z] [ROOM_ASSIGNED] Dummy user DUMMY_dzff has no socket (test mode)
+[2026-03-21T21:38:53.903Z] [ROOM_ASSIGNED] Dummy user DUMMY_d0nr has no socket (test mode)
+[2026-03-21T21:38:53.903Z] [ROOM_ASSIGNED] Dummy user DUMMY_ljeo has no socket (test mode)
+[2026-03-21T21:38:53.903Z] [ROOM_ASSIGNED] ✅ Room b9166 fully assigned with users: TEST_PROLIFIC_55ymf9e7a, DUMMY_dzff, DUMMY_d0nr, DUMMY_ljeo
+[2026-03-21T21:38:55.131Z] [JOIN_ROOM] Request from socket En6EBD5AyPgXHZFyAAAJ, userId: s1qvkpuhn, roomId: b9166
+[2026-03-21T21:38:55.131Z] [JOIN_ROOM] ✅ TEST_PROLIFIC_55ymf9e7a joined room b9166 (socket: En6EBD5AyPgXHZFyAAAJ)
+[2026-03-21T21:38:55.132Z] [JOIN_ROOM] Room b9166 now has 4 users in socket room
+[2026-03-21T21:39:00.111Z] [START_GRID_GAME] Request received from socket En6EBD5AyPgXHZFyAAAJ, roomId: b9166
+[2026-03-21T21:39:00.111Z] [START_GRID_GAME] Socket En6EBD5AyPgXHZFyAAAJ maps to userId: s1qvkpuhn
+[2026-03-21T21:39:00.111Z] [START_GRID_GAME] ✅ Starting grid game for room b9166
+[2026-03-21T21:39:00.111Z] [START_GRID_GAME] Cleared chat messages for room b9166
+[2026-03-21T21:39:00.111Z] [START_GRID_GAME] Room b9166 has 4 users: TEST_PROLIFIC_55ymf9e7a, DUMMY_dzff, DUMMY_d0nr, DUMMY_ljeo
+[2026-03-21T21:39:00.112Z] [TIMER] startRoomTimer called for room b9166
+[2026-03-21T21:39:00.112Z] [TIMER] ✅ Game marked as started for room b9166
+[2026-03-21T21:39:00.112Z] [TIMER] Start time for room b9166 is Sat Mar 21 2026 23:39:00 GMT+0200 (Israel Standard Time), taskTime: 10s
+[2026-03-21T21:39:00.112Z] [TIMER] Initialized stars and balls arrays for room b9166
+[2026-03-21T21:39:00.112Z] [START_GRID_GAME] ✅ Emitted start_grid_game event to room_b9166
+[2026-03-21T21:39:01.113Z] New star generated in room b9166 at (1, 1)
+[2026-03-21T21:39:02.115Z] New star generated in room b9166 at (0, 9)
+[2026-03-21T21:39:02.115Z] New ball generated in room b9166 at (14, 9)
+[2026-03-21T21:39:04.454Z] ✅ Punishment saved: s1qvkpuhn ➡️ dummy_xyon1qmr3 ("Need your help here.")
+[2026-03-21T21:39:05.118Z] New ball generated in room b9166 at (12, 7)
+[2026-03-21T21:39:06.118Z] New ball generated in room b9166 at (13, 4)
+[2026-03-21T21:39:07.118Z] New star generated in room b9166 at (0, 0)
+[2026-03-21T21:39:07.118Z] New ball generated in room b9166 at (12, 9)
+[2026-03-21T21:39:07.890Z] ✅ Punishment saved: s1qvkpuhn ➡️ dummy_q1tnpti2l ("Step up your game.")
+[2026-03-21T21:39:09.119Z] New ball generated in room b9166 at (13, 5)

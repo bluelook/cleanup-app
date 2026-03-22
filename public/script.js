@@ -930,13 +930,13 @@ function tutorialPraise(sourceId, targetId, callback) {
     const tutorialPraiseMsg = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
 
     $("#centered-message")
-        .html(`${sourceAvatarHTML} is praising ${targetAvatarHTML}`)
+        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPraiseMsg}'`)
         .fadeIn();
 
     if (targetId === "PLAYER") {
         $("#punishment-popup")
             .addClass("praise-popup")
-            .html(`${sourceAvatarHTML} says: <em>"${tutorialPraiseMsg}"</em>`)
+            .html(`${sourceAvatarHTML} is telling you: '${tutorialPraiseMsg}'`)
             .fadeIn();
     }
 
@@ -1475,10 +1475,10 @@ $(document).ready(() => {
         const praiserAvatar = `<img src="${praiser.avatar}" width="30" class="inline-avatar">`;
         const praisedAvatar = `<img src="${praised.avatar}" width="30" class="inline-avatar">`;
 
-        $("#centered-message").html(`${praiserAvatar} is praising ${praisedAvatar}`).fadeIn();
+        $("#centered-message").html(`${praiserAvatar} is telling ${praisedAvatar}: '${praiseMessage}'`).fadeIn();
 
         if (user.id === praisedId) {
-            $("#punishment-popup").addClass("praise-popup").html(`${praiserAvatar} says: <em>"${praiseMessage}"</em>`).fadeIn();
+            $("#punishment-popup").addClass("praise-popup").html(`${praiserAvatar} is telling you: '${praiseMessage}'`).fadeIn();
         }
 
         setTimeout(() => {
