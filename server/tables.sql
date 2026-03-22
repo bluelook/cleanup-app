@@ -50,6 +50,20 @@ CREATE TABLE IF NOT EXISTS punishments (
   punisher_id VARCHAR(255) NOT NULL,
   punished_id VARCHAR(255) NOT NULL,
   room_id VARCHAR(255) NOT NULL,
+  punishment_message VARCHAR(255),
+  message_id VARCHAR(20),
+  timestamp INT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS praises (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  praiser_id VARCHAR(255) NOT NULL,
+  praised_id VARCHAR(255) NOT NULL,
+  room_id VARCHAR(255) NOT NULL,
+  praise_message VARCHAR(255),
+  message_id VARCHAR(20),
   timestamp INT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

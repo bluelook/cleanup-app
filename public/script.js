@@ -153,15 +153,15 @@ function tutorialPunish(sourceId, targetId, callback) {
     explosion.style.fontSize = "28px";
     wrapper.appendChild(explosion);
 
-    const tutorialPunishMsg = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
+    const tutorialPunishEntry = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
 
     $("#centered-message")
-        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPunishMsg}'`)
+        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPunishEntry.text}'`)
         .fadeIn();
 
     if (targetId === "PLAYER") {
         $("#punishment-popup")
-            .html(`${sourceAvatarHTML} is telling you: '${tutorialPunishMsg}'`)
+            .html(`${sourceAvatarHTML} is telling you: '${tutorialPunishEntry.text}'`)
             .fadeIn();
     }
 
@@ -866,36 +866,38 @@ function timeOutScreen() {
 }
 
 const punishmentMessages = [
-    "Step up your game.",
-    "Your effort is needed.",
-    "Need your help here."
+    { id: "PUN-01", text: "Step up your game" },
+    { id: "PUN-02", text: "Your effort is needed" },
+    { id: "PUN-03", text: "Need your help here" }
 ];
 
 function punishPlayer(targetId) {
-    const punishMessage = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
-    console.log("👊 Punishing player:", targetId, "message:", punishMessage);
+    const punishEntry = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
+    console.log("👊 Punishing player:", targetId, "message:", punishEntry.id, punishEntry.text);
     socket.emit("punish_player", {
         punisherId: user.id,
         punishedId: targetId,
         roomId: roomId,
-        punishMessage: punishMessage
+        punishMessage: punishEntry.text,
+        messageId: punishEntry.id
     });
 }
 
 const praiseMessages = [
-    "You are doing a great job",
-    "Great work",
-    "Appreciate your effort"
+    { id: "PRA-01", text: "You are doing a great job" },
+    { id: "PRA-02", text: "Great work" },
+    { id: "PRA-03", text: "Appreciate your effort" }
 ];
 
 function praisePlayer(targetId) {
-    const praiseMessage = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
-    console.log("Praising player:", targetId, "message:", praiseMessage);
+    const praiseEntry = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
+    console.log("Praising player:", targetId, "message:", praiseEntry.id, praiseEntry.text);
     socket.emit("praise_player", {
         praiserId: user.id,
         praisedId: targetId,
         roomId: roomId,
-        praiseMessage: praiseMessage
+        praiseMessage: praiseEntry.text,
+        messageId: praiseEntry.id
     });
 }
 
@@ -927,16 +929,16 @@ function tutorialPraise(sourceId, targetId, callback) {
     praiseEffect.style.fontSize = "28px";
     wrapper.appendChild(praiseEffect);
 
-    const tutorialPraiseMsg = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
+    const tutorialPraiseEntry = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
 
     $("#centered-message")
-        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPraiseMsg}'`)
+        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPraiseEntry.text}'`)
         .fadeIn();
 
     if (targetId === "PLAYER") {
         $("#punishment-popup")
             .addClass("praise-popup")
-            .html(`${sourceAvatarHTML} is telling you: '${tutorialPraiseMsg}'`)
+            .html(`${sourceAvatarHTML} is telling you: '${tutorialPraiseEntry.text}'`)
             .fadeIn();
     }
 
