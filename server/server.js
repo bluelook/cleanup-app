@@ -243,8 +243,8 @@ io.on("connection", (socket) => {
     
     // ✅ Override taskTime for test mode only
     if (testMode) {
-        taskTime = 10;
-console.log(`Test mode enabled: taskTime set to ${taskTime} seconds`);
+        taskTime = parseInt(socket.handshake.query.testDuration, 10) || 10;
+        console.log(`Test mode enabled: taskTime set to ${taskTime} seconds`);
     }
     
     const baseFlags = featureSets[mode] || featureSets.none;

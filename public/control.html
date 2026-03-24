@@ -31,6 +31,11 @@
         </div>
     </div>
 
+    <div class="container" style="max-width: 420px; display: none;" id="testDurationWrap">
+        <label for="testDuration" class="form-label">Test duration (seconds)</label>
+        <input type="number" id="testDuration" class="form-control mb-3" value="10" min="1">
+    </div>
+
     <div class="container" style="max-width: 420px; display: none;" id="skipConsentWrap">
         <div class="form-check mb-3 text-start">
             <input class="form-check-input" type="checkbox" id="skipConsent">
@@ -67,7 +72,7 @@
 
     <div class="container" style="max-width: 420px;">
         <label for="prolificCode" class="form-label">Prolific Code</label>
-        <input type="text" id="prolificCode" class="form-control mb-3" placeholder="TESTCODE">
+        <input type="text" id="prolificCode" class="form-control mb-3" placeholder="Enter Prolific Code">
     </div>
 
     <div class="d-flex flex-wrap justify-content-center gap-2">
@@ -90,10 +95,13 @@
         const tutorialStartSelect = document.getElementById("tutorialStart");
         const jumpSurveyWrap = document.getElementById("jumpSurveyWrap");
         const jumpSurveyCheckbox = document.getElementById("jumpSurvey");
+        const testDurationWrap = document.getElementById("testDurationWrap");
+        const testDurationInput = document.getElementById("testDuration");
 
         function updateTutorialOptionsVisibility() {
             const isTest = testModeCheckbox.checked;
             const skip = skipTutorialCheckbox.checked;
+            testDurationWrap.style.display = isTest ? "block" : "none";
             skipTutorialWrap.style.display = isTest ? "block" : "none";
             skipConsentWrap.style.display = isTest ? "block" : "none";
             jumpSurveyWrap.style.display = isTest ? "block" : "none";
@@ -133,7 +141,7 @@
             btn.addEventListener("click", () => {
                 const mode = btn.getAttribute("data-mode");
                 const groupSize = groupSizeSelect.value;
-                const prolificCode = document.getElementById("prolificCode").value.trim() || "TESTCODE";
+                const prolificCode = document.getElementById("prolificCode").value.trim();
                 const testMode = testModeCheckbox.checked ? "true" : "false";
                 const tutorialStart = tutorialStartSelect.value;
                 const skipTutorial = skipTutorialCheckbox.checked ? "true" : "false";
@@ -142,10 +150,11 @@
                 const tutorialParam = testMode === "true" && skipTutorial === "false"
                     ? `&tutorialStart=${tutorialStart}`
                     : "";
+                const testDuration = testDurationInput.value;
                 const skipParam = testMode === "true"
-                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}`
+                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&testDuration=${testDuration}`
                     : "";
-                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${skipParam}${tutorialParam}&prolificCode=${prolificCode}`;
+                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${skipParam}${tutorialParam}`;
             });
         });
     </script>

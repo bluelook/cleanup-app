@@ -4,15 +4,16 @@
 const params = new URLSearchParams(window.location.search);
 const mode = params.get('mode') || 'full';
 const groupSize = params.get('groupSize') || '';
-const prolificCode = params.get('prolificCode') || 'TESTCODE';
+const prolificCode = params.get('prolificCode') || '';
 const tutorialStartParam = parseInt(params.get('tutorialStart'), 10);
 const skipTutorial = params.get('skipTutorial') === 'true';
 const skipConsent = params.get('skipConsent') === 'true';
 const jumpSurvey = params.get('jumpSurvey') === 'true';
 const testMode = params.get('test') === 'true';  // ✅ Testing mode flag
+const testDuration = params.get('testDuration') || '';
 // === end of read window.flags ===
 
-const socket = io({ query: { mode, groupSize, test: testMode } });
+const socket = io({ query: { mode, groupSize, test: testMode, testDuration } });
 
 
 let user = null;
@@ -128,6 +129,7 @@ function showTutorialWaterDrop(durationSec) {
 function tutorialPunish(sourceId, targetId, callback) {
     const realTarget = (targetId === "PLAYER" ? "TUTORIAL_PLAYER" : "TUTORIAL_DUMMY");
 
+    // Avatar visuals for messages
     const avatarPlayerHTML = `<img src="images/player_demo.png" width="25" style="vertical-align:middle;">`;
     const avatarDummyHTML  = `<img src="images/player_demo.png" width="25" style="vertical-align:middle; filter: grayscale(100%) brightness(70%);">`;
 
@@ -976,7 +978,7 @@ $(document).ready(() => {
         `);
     }
     if (testMode && skipConsent) {
-        socket.emit("login", "TEST_PROLIFIC_" + Math.random().toString(36).substr(2, 9));
+        socket.emit("login", "TEST_" + Math.random().toString(36).substr(2, 9));
     } else {
         showScreen(testMode ? "consent" : "welcome"); // Show consent directly in test mode
     }
