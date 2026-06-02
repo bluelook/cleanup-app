@@ -57,6 +57,13 @@
         </div>
     </div>
 
+    <div class="container" style="max-width: 420px; display: none;" id="jumpSiasWrap">
+        <div class="form-check mb-3 text-start">
+            <input class="form-check-input" type="checkbox" id="jumpSias">
+            <label class="form-check-label" for="jumpSias">Jump to SIAS</label>
+        </div>
+    </div>
+
     <div class="container" style="max-width: 420px; display: none;" id="tutorialStartWrap">
         <label for="tutorialStart" class="form-label">Tutorial start page</label>
         <select id="tutorialStart" class="form-select mb-3">
@@ -67,6 +74,7 @@
             <option value="5">5</option>
             <option value="6">6</option>
             <option value="7">7</option>
+            <option value="8">8</option>
         </select>
     </div>
 
@@ -82,6 +90,12 @@
         <button class="btn btn-info" data-mode="water">Water</button>
         <button class="btn btn-danger" data-mode="waterPunish">Water + Punishment</button>
         <button class="btn btn-teal" data-mode="waterPraise" style="background-color:#20c997; color:white;">Water + Praise</button>
+        <button class="btn btn-secondary" data-mode="stain">Stain</button>
+        <button class="btn btn-dark" data-mode="stainPunish">Stain + Punishment</button>
+        <button class="btn btn-secondary" data-mode="stainPraise" style="background-color:#6f42c1; color:white;">Stain + Praise</button>
+        <button class="btn btn-secondary" data-mode="waterStain" style="background-color:#0d6efd; color:white;">Water + Stain</button>
+        <button class="btn btn-secondary" data-mode="waterStainPunish" style="background-color:#842029; color:white;">Water + Stain + Punishment</button>
+        <button class="btn btn-secondary" data-mode="waterStainPraise" style="background-color:#146c43; color:white;">Water + Stain + Praise</button>
     </div>
 
     <script>
@@ -95,6 +109,8 @@
         const tutorialStartSelect = document.getElementById("tutorialStart");
         const jumpSurveyWrap = document.getElementById("jumpSurveyWrap");
         const jumpSurveyCheckbox = document.getElementById("jumpSurvey");
+        const jumpSiasWrap = document.getElementById("jumpSiasWrap");
+        const jumpSiasCheckbox = document.getElementById("jumpSias");
         const testDurationWrap = document.getElementById("testDurationWrap");
         const testDurationInput = document.getElementById("testDuration");
 
@@ -105,6 +121,7 @@
             skipTutorialWrap.style.display = isTest ? "block" : "none";
             skipConsentWrap.style.display = isTest ? "block" : "none";
             jumpSurveyWrap.style.display = isTest ? "block" : "none";
+            jumpSiasWrap.style.display = isTest ? "block" : "none";
             tutorialStartWrap.style.display = isTest && !skip ? "block" : "none";
         }
 
@@ -112,6 +129,7 @@
         skipTutorialCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
         skipConsentCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
         jumpSurveyCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
+        jumpSiasCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
         updateTutorialOptionsVisibility();
 
         skipTutorialCheckbox.addEventListener("change", () => {
@@ -130,9 +148,29 @@
                 skipTutorialCheckbox.checked = true;
                 skipTutorialCheckbox.disabled = true;
                 tutorialStartWrap.style.display = "none";
+                jumpSiasCheckbox.checked = false;
+                jumpSiasCheckbox.disabled = true;
             } else {
                 skipTutorialCheckbox.disabled = false;
                 skipConsentCheckbox.disabled = !skipTutorialCheckbox.checked;
+                jumpSiasCheckbox.disabled = false;
+                updateTutorialOptionsVisibility();
+            }
+        });
+
+        jumpSiasCheckbox.addEventListener("change", () => {
+            if (jumpSiasCheckbox.checked) {
+                skipConsentCheckbox.checked = true;
+                skipConsentCheckbox.disabled = true;
+                skipTutorialCheckbox.checked = true;
+                skipTutorialCheckbox.disabled = true;
+                tutorialStartWrap.style.display = "none";
+                jumpSurveyCheckbox.checked = false;
+                jumpSurveyCheckbox.disabled = true;
+            } else {
+                skipTutorialCheckbox.disabled = false;
+                skipConsentCheckbox.disabled = !skipTutorialCheckbox.checked;
+                jumpSurveyCheckbox.disabled = false;
                 updateTutorialOptionsVisibility();
             }
         });
@@ -147,12 +185,13 @@
                 const skipTutorial = skipTutorialCheckbox.checked ? "true" : "false";
                 const skipConsent = skipConsentCheckbox.checked ? "true" : "false";
                 const jumpSurvey = jumpSurveyCheckbox.checked ? "true" : "false";
+                const jumpSias = jumpSiasCheckbox.checked ? "true" : "false";
                 const tutorialParam = testMode === "true" && skipTutorial === "false"
                     ? `&tutorialStart=${tutorialStart}`
                     : "";
                 const testDuration = testDurationInput.value;
                 const skipParam = testMode === "true"
-                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&testDuration=${testDuration}`
+                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&jumpSias=${jumpSias}&testDuration=${testDuration}`
                     : "";
                 window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${skipParam}${tutorialParam}`;
             });

@@ -82,14 +82,7 @@ let gameStarted = {}; // バ. Track if game has started for each room
 
 
 // === Experiment modes and their feature flags ===
-const featureSets = {
-    none:        { punishments: false, praise: false, waterCue: false },
-    punish:      { punishments: true,  praise: false, waterCue: false },
-    praise:      { punishments: false, praise: true,  waterCue: false },
-    water:       { punishments: false, praise: false, waterCue: true  },
-    waterPunish: { punishments: true,  praise: false, waterCue: true  },
-    waterPraise: { punishments: false, praise: true,  waterCue: true  }
-};
+const { featureSets, getLocationValue, computeNewCoop, COOP_W } = require('./gameLogic');
 // === End of Experiment modes and their feature flags ===
 
 app.use(cors());
@@ -128,15 +121,33 @@ const linkMap = {
     wp: 'waterPunish',
     punish: 'punish',
     praise: 'praise',
-    wpr: 'waterPraise'
+    wpr: 'waterPraise',
+    stain: 'stain',
+    sp: 'stainPunish',
+    spr: 'stainPraise',
+    ws: 'waterStain',
+    wsp: 'waterStainPunish',
+    wspr: 'waterStainPraise'
 };
 
 app.get('/:link', (req, res, next) => {
-  const key = req.params.link;
-  if (linkMap[key]) {
-    return res.redirect(`/index.html?mode=${linkMap[key]}`);
+  try {
+    const key = req.params.link;
+    if (linkMap[key]) {
+      return res.redirect(`/index.html?mode=${linkMap[key]}`);
+    }
+    next();
+  } catch (e) {
+    res.status(400).end();
   }
-  next();
+});
+
+// Catch malformed URI errors from bots/scanners
+app.use((err, req, res, next) => {
+  if (err instanceof URIError) {
+    return res.status(400).end();
+  }
+  next(err);
 });
 
 // Landing page for version selection
@@ -144,8 +155,15 @@ app.get("/control.html", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/control.html"));
 });
 
+// Block direct access to root and index.html — must go through control.html
+app.get(["/", "/index.html"], (req, res) => {
+  if (!req.query.mode) {
+    return res.status(403).send("Access denied.");
+  }
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
-// ✅ static middleware 
+// ✅ static middleware
 app.use(express.static(path.join(__dirname, "../public")));
 
 
@@ -170,6 +188,19 @@ const startingPositions = [
 ];
 
 
+
+// === Cooperation (Coop) tracking ===
+const coopValues = {}; // { [userId]: number } current coop score per player
+
+function updateCoop(userId) {
+    const user = users[userId];
+    if (!user || !user.position) return;
+    const locVal = getLocationValue(user.position.x);
+    const prev = (coopValues[userId] !== undefined) ? coopValues[userId] : 0.5;
+    coopValues[userId] = computeNewCoop(prev, locVal);
+}
+
+// === End Coop tracking ===
 
 // MySQL Database Connection
 const dbConfig = require("./dbConfig"); // ✅ Import the config file
@@ -258,7 +289,7 @@ io.on("connection", (socket) => {
 
     console.log(`New client connected: ${socket.id}`);
     console.log(`→ mode = ${mode}`);
-    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}`);
+    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}, stainCue = ${socket.flags.stainCue}`);
     console.log("New client connected:", socket.id);
 
     socket.on("login", (username) => {
@@ -348,6 +379,7 @@ io.on("connection", (socket) => {
                 user.position = startingPositions[index % startingPositions.length];
                 user.star_score = 0;
                 user.ball_score = 0;
+                coopValues[user.id] = 0.5; // Start at neutral cooperation
                 userRooms[user.id] = roomId;
                 users[user.id] = user; //  Store full user object
                 console.log(`[ROOM_ASSIGNED] User ${user.username} (${user.id}) assigned to room ${roomId} as player ${index + 1}`);
@@ -612,14 +644,18 @@ io.on("connection", (socket) => {
         //  Send updated positions of all room users
         io.to(`room_${roomId}`).emit("update_positions", roomUsers );
 
+        // === Update and broadcast Coop ===
+        updateCoop(userId);
+        io.to(`room_${roomId}`).emit("coop_update", { userId, coopValue: coopValues[userId] });
+        // === End Coop update ===
 
-        //  Save movement data to MySQL
+        //  Save movement data to MySQL (coop_value included)
         let created_at = new Date().toISOString().slice(0, 19).replace("T", " ");
         let timestamp = new Date()-StartTime[roomId];
 
         const sql = `
-        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)`;
+        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             roomId,
@@ -635,6 +671,7 @@ io.on("connection", (socket) => {
             user.ball_score,
             pickedStar,
             pickedBall,
+            coopValues[userId],
             created_at
         ];
 
@@ -663,6 +700,7 @@ io.on("connection", (socket) => {
                         else console.log(`✅ Punishment saved: ${punisherId} ➡️ ${punishedId} [${messageId}] ("${punishMessage}")`);
                     }
                 );
+
                 const roomUsers = Object.values(users).filter(u => u.roomId === roomId);
 
                 // Broadcast to all players in the room
@@ -684,6 +722,7 @@ io.on("connection", (socket) => {
                     else console.log(`Praise saved: ${praiserId} -> ${praisedId} [${messageId}] ("${praiseMessage}")`);
                 }
             );
+
             const roomUsers = Object.values(users).filter(u => u.roomId === roomId);
             io.to(`room_${roomId}`).emit("praise_notice", { praiserId, praisedId, praiseMessage, messageId, roomUsers });
         });
@@ -865,6 +904,7 @@ io.on("connection", (socket) => {
         delete users[data.userId];
         delete userRooms[data.userId];
         delete connectedUsers[data.userId];
+        delete coopValues[data.userId];
         delete roomTimeLeft[roomId];
         console.log(`User ${data.userId} left. Checking if room ${roomId} is empty...`);
     
@@ -902,8 +942,38 @@ io.on("connection", (socket) => {
         delete users[data.userId];
         delete userRooms[data.userId];
         delete connectedUsers[data.userId];
+        delete coopValues[data.userId];
         console.log(`User ${data.userId} left.`);
-    }); 
+    });
+
+    // === SIAS (Social Interaction Anxiety Scale) submission ===
+    socket.on("submit_sias", (data) => {
+        const { userId, roomId, responses } = data;
+        // responses: array of 20 integers [score_item1, ..., score_item20] (raw, 0–4)
+
+        const user = users[userId];
+        if (!user) {
+            socket.emit("survey_saved_success", { metric: "sias" });
+            return;
+        }
+
+        const totalScore = responses.reduce((sum, v) => sum + v, 0);
+
+        const cols = Array.from({ length: 19 }, (_, i) => `sias_${i + 1}`).join(", ");
+        const placeholders = responses.map(() => "?").join(", ");
+        const sql = `INSERT INTO sias (player_id, room_id, ${cols}, total_score) VALUES (?, ?, ${placeholders}, ?)`;
+        const values = [userId, roomId, ...responses, totalScore];
+
+        db.query(sql, values, (err) => {
+            if (err) {
+                console.error("Failed to save SIAS:", err);
+            } else {
+                console.log(`SIAS saved for user ${userId}, total=${totalScore}`);
+            }
+            socket.emit("survey_saved_success", { metric: "sias" });
+        });
+    });
+    // === End SIAS handler ===
 
     // ✅ Handle BATCH survey submission (Renamed from 'belief')
     socket.on("submit_survey_batch", (data) => {
@@ -949,4 +1019,5 @@ io.on("connection", (socket) => {
     
 });
 
-server.listen(5000, () => console.log("Server running on port 5000"));
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));

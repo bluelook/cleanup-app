@@ -4,11 +4,11 @@
 const params = new URLSearchParams(window.location.search);
 const mode = params.get('mode') || 'full';
 const groupSize = params.get('groupSize') || '';
-const prolificCode = params.get('prolificCode') || '';
 const tutorialStartParam = parseInt(params.get('tutorialStart'), 10);
 const skipTutorial = params.get('skipTutorial') === 'true';
 const skipConsent = params.get('skipConsent') === 'true';
 const jumpSurvey = params.get('jumpSurvey') === 'true';
+const jumpSias = params.get('jumpSias') === 'true';
 const testMode = params.get('test') === 'true';  // ✅ Testing mode flag
 const testDuration = params.get('testDuration') || '';
 // === end of read window.flags ===
@@ -47,15 +47,16 @@ function isWaterTile(x, y) {
 
 function getTutorialModeFlags() {
     return {
-        water: (mode === "water" || mode === "waterPunish" || mode === "waterPraise"),
-        punish: (mode === "punish" || mode === "waterPunish"),
-        praise: (mode === "praise" || mode === "waterPraise")
+        water:  (mode === "water"  || mode === "waterPunish"      || mode === "waterPraise"      || mode === "waterStain" || mode === "waterStainPunish" || mode === "waterStainPraise"),
+        stain:  (mode === "stain"  || mode === "stainPunish"      || mode === "stainPraise"      || mode === "waterStain" || mode === "waterStainPunish" || mode === "waterStainPraise"),
+        punish: (mode === "punish" || mode === "waterPunish"      || mode === "stainPunish"      || mode === "waterStainPunish"),
+        praise: (mode === "praise" || mode === "waterPraise"      || mode === "stainPraise"      || mode === "waterStainPraise")
     };
 }
 
 function getTutorialStartStage() {
     const flags = getTutorialModeFlags();
-    const maxStages = 5 + (flags.water ? 1 : 0) + (flags.punish ? 1 : 0) + (flags.praise ? 1 : 0);
+    const maxStages = 5 + (flags.water ? 1 : 0) + (flags.stain ? 1 : 0) + (flags.punish ? 1 : 0) + (flags.praise ? 1 : 0);
     if (!testMode) return 1;
     if (!Number.isFinite(tutorialStartParam)) return 1;
     return Math.min(Math.max(tutorialStartParam, 1), maxStages);
@@ -88,6 +89,47 @@ function getTutorialStartStage() {
         drop.remove();
         if (playerStates[playerId]) playerStates[playerId].dropActive = false;
       }, durationSec * 1000);
+}
+
+// === Coop-driven persistent water drop ===
+function showCoopDrop(playerId) {
+    if (document.querySelector(`.coop-drop[data-user-id="${playerId}"]`)) return; // already showing
+    const avatar = document.querySelector(`img.player-avatar[data-user-id="${playerId}"]`);
+    if (!avatar) return;
+    const drop = document.createElement("div");
+    drop.className = "coop-drop";
+    drop.dataset.userId = playerId;
+    drop.textContent = "💧";
+    drop.style.position = "absolute";
+    drop.style.top = "-20px";
+    drop.style.left = "50%";
+    drop.style.transform = "translateX(-50%)";
+    avatar.parentElement.style.position = "relative";
+    avatar.parentElement.appendChild(drop);
+}
+
+function hideCoopDrop(playerId) {
+    document.querySelectorAll(`.coop-drop[data-user-id="${playerId}"]`).forEach(el => el.remove());
+}
+
+// === Coop-driven stain (low cooperation) ===
+function showStain(playerId, coopValue) {
+    if (document.querySelector(`.coop-stain[data-user-id="${playerId}"]`)) return; // already showing
+    const avatar = document.querySelector(`img.player-avatar[data-user-id="${playerId}"]`);
+    if (!avatar) return;
+    const stain = document.createElement("div");
+    stain.className = "coop-stain";
+    stain.dataset.userId = playerId;
+    stain.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32">
+      <path fill="#7a3b10" d="M50,10 C62,5 80,18 85,32 C92,40 90,55 82,62 C90,70 85,85 72,88 C60,95 45,90 38,82 C28,88 12,80 10,68 C5,55 14,42 24,38 C18,26 28,10 40,8 C43,7 47,8 50,10 Z"/>
+    </svg>`;
+    avatar.parentElement.style.position = "relative";
+    avatar.parentElement.appendChild(stain);
+    console.log(`[Coop] Stain appeared for player ${playerId} — coop = ${coopValue.toFixed(3)}`);
+}
+
+function hideStain(playerId) {
+    document.querySelectorAll(`.coop-stain[data-user-id="${playerId}"]`).forEach(el => el.remove());
 }
 
 // === Tutorial-only water drop (stage 6) ===
@@ -158,12 +200,12 @@ function tutorialPunish(sourceId, targetId, callback) {
     const tutorialPunishEntry = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
 
     $("#centered-message")
-        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPunishEntry.text}'`)
+        .html(`${sourceAvatarHTML} is asking ${targetAvatarHTML} to help clean: '${tutorialPunishEntry.text}'`)
         .fadeIn();
 
     if (targetId === "PLAYER") {
         $("#punishment-popup")
-            .html(`${sourceAvatarHTML} is telling you: '${tutorialPunishEntry.text}'`)
+            .html(`${sourceAvatarHTML} is asking you to help clean: '${tutorialPunishEntry.text}'`)
             .fadeIn();
     }
 
@@ -434,23 +476,31 @@ function startTutorial(stage) {
     // ⭐ Insert WATER stage only if mode supports water
     if (flags.water) {
         tutorialStages.push({
-            text: "When you enter the river, you become wet.<br>Walk into the river area, stay inside for a moment, then walk back out.<br>The drop 💧 above your head lasts for half the time you stayed in the river.<br>You can keep moving while the drop is present.",
+            text: "In this game, players who spend time cleaning the river are rewarded with a water drop 💧 above their head.<br>The drop appears when a player has been spending enough time in the river area, and disappears when they stop.<br>You can keep moving while the drop is present.",
             objective: "Enter the river → Exit the river → See the drop"
         });
     }
 
-    // ⭐ Insert PUNISHMENT stage only if mode supports punishment
+    // ⭐ Insert STAIN stage only if mode supports stain
+    if (flags.stain) {
+        tutorialStages.push({
+            text: "Players who spend most of their time collecting apples without helping clean will have a stain 🟤 appear above their head.<br>Collect all the apples in the orchard.",
+            objective: "Collect all apples → See the stain appear"
+        });
+    }
+
+    // ⭐ Insert REQUEST HELP stage only if mode supports it
     if (flags.punish) {
         tutorialStages.push({
-            text: "In this game, players can show a disapproval of other players by telling them off.<br>To experience how this works, click on the dummy player with your mouse.<br>This will trigger a short punishment animation (💥) and the telling off message.<br> Afterwards, you will see how it looks when someone tells <b>YOU</b> off.<br>",
-            objective: "Click dummy to tell them off."
+            text: "In this game, you can communicate with other players.<br> If someone is not cooperative, you can send a request to change their behavior.<br>To experience how this works, click on the dummy player with your mouse.<br>This will send them a message (💥) asking them to contribute more to the cleaning.<br>Afterwards, you will see how it looks when someone sends <b>you</b> a request.<br>",
+            objective: "Click dummy to send a request."
         });
     }
 
     // ⭐ Insert PRAISE stage only if mode supports praise
     if (flags.praise) {
         tutorialStages.push({
-            text: "In this game, players can praise other players to show appreciation.<br>To experience how this works, click on the dummy player with your mouse.<br>This will trigger a praise animation (👍) and a message.<br>Afterwards, you will see how it looks when someone praises <b>YOU</b>.<br>",
+            text: "In this game, players can appreciate others by sending them a positive message.<br>To experience how this works, click on the dummy player with your mouse.<br>This will trigger a praise animation (👍) and a message.<br>Afterwards, you will see how it looks when someone praises <b>you</b>.<br>",
             objective: "Click dummy to praise them."
         });
     }
@@ -463,11 +513,13 @@ function startTutorial(stage) {
         return;
     }
 
-    // Calculate water, punish, and praise stage indices based on actual array length
+    // Calculate stage indices based on actual array length
     let waterStage = null;
+    let stainStage = null;
     let punishStage = null;
     let praiseStage = null;
-    if (flags.water) waterStage = tutorialStages.length - (flags.punish ? 1 : 0) - (flags.praise ? 1 : 0);
+    if (flags.water) waterStage = tutorialStages.length - (flags.stain ? 1 : 0) - (flags.punish ? 1 : 0) - (flags.praise ? 1 : 0);
+    if (flags.stain) stainStage = tutorialStages.length - (flags.punish ? 1 : 0) - (flags.praise ? 1 : 0);
     if (flags.punish) punishStage = tutorialStages.length - (flags.praise ? 1 : 0);
     if (flags.praise) praiseStage = tutorialStages.length;
 
@@ -481,6 +533,10 @@ function startTutorial(stage) {
     }
     if (stage === waterStage) {
         position = { x: 3, y: 1 }; // Start on land for the water test
+    }
+    if (stage === stainStage) {
+        position = { x: 3, y: 1 };
+        gridObjects.apples = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }];
     }
     if (stage === punishStage) {
         position = { x: 2, y: 1 };              // player
@@ -571,7 +627,17 @@ function startTutorial(stage) {
 
             }
 
-            // === ⭐ WATER LOGIC (STAGE 6) ⭐ ===
+            // === ⭐ STAIN LOGIC ⭐ ===
+            let allApplesCollected = false;
+            if (flags.stain && stage === stainStage && gridObjects.apples) {
+                gridObjects.apples = gridObjects.apples.filter(a => !(a.x === position.x && a.y === position.y));
+                if (gridObjects.apples.length === 0) {
+                    $(document).off("keydown");
+                    allApplesCollected = true;
+                }
+            }
+
+            // === ⭐ WATER LOGIC ⭐ ===
             if (flags.water && stage === waterStage) {
                 const insideRiver = (position.x === 6);        // tutorial river at x=6
                 const wasInside = window.tutWaterState.inWater;
@@ -592,13 +658,11 @@ function startTutorial(stage) {
 
                     window.tutWaterState.inWater = false;
 
-                    // After drop ends → lock movement + show "Great job!"
-                    window.onTutorialDropEnd = () => {
-                        //window.tutorialMovementLocked = true;
-                        $(document).off("keydown");
-                        window.onTutorialDropEnd = null;
+                    // Show "Great job!" 2 seconds after the drop appears
+                    $(document).off("keydown");
+                    setTimeout(() => {
                         $("#tutorialMessage").show();
-                    };
+                    }, 2000);
                 }
             }
             if (flags.punish && stage === punishStage) {
@@ -612,6 +676,14 @@ function startTutorial(stage) {
 
             // Redraw grid after movement (drop will be reattached below)
             drawTutorialGrid(position, gridObjects);
+
+            // Show stain after final grid redraw so it isn't wiped
+            if (allApplesCollected) {
+                showStain("TUTORIAL_PLAYER", 0.2);
+                setTimeout(() => {
+                    $("#tutorialMessage").show();
+                }, 3000);
+            }
         }
     });
 
@@ -633,7 +705,7 @@ function startTutorial(stage) {
             tutorialPunish("PLAYER", "DUMMY", () => {
                 $("#tutorialMessage").html(`
                     <h3>Good job!</h3>
-                    <p>Now see what happens when someone tells <b>YOU</b> off.</p>
+                    <p>Now see what happens when someone sends <b>you</b> a request.</p>
                     <button class="btn btn-warning" id="btnPunishPlayer">Show me</button>
                 `).show();
 
@@ -694,7 +766,7 @@ function drawTutorialGrid(playerPos, objects) {
 
         for (let x = 0; x < 7; x++) {
             let cellId = `cell-${x}-${y}`;
-            let cellClass = (x === 0) ? "orchard" : (x === 6) ? "river" : "land"; // Assign class based on column
+            let cellClass = (x <= 1) ? "orchard" : (x === 6) ? "river" : "land"; // Assign class based on column
             let cellContent = "";
 
             // Player avatar
@@ -718,8 +790,12 @@ function drawTutorialGrid(playerPos, objects) {
                     </div>`;
             }
 
-            // Apple
+            // Apple (single)
             else if (objects.apple && objects.apple.x === x && objects.apple.y === y) {
+                cellContent = `<img src="images/star.png" class="img-fluid" width="30">`;
+            }
+            // Apples (array)
+            else if (objects.apples && objects.apples.some(a => a.x === x && a.y === y)) {
                 cellContent = `<img src="images/star.png" class="img-fluid" width="30">`;
             }
             // Dirt
@@ -789,6 +865,17 @@ function showQuiz() {
                 </select>
             </div>
 
+            <div class="mb-3">
+                <label>3. How will your bonus be determined?</label>
+                <select id="q3" class="form-select">
+                    <option value="">Select an answer</option>
+                    <option value="group_dirt">How much dirt the entire group collected</option>
+                    <option value="group_apples">How many apples the entire group collected</option>
+                    <option value="own_dirt">How much dirt only you collected</option>
+                    <option value="own_apples">How many apples only you collected</option>
+                </select>
+            </div>
+
             <button class="btn btn-primary mt-3" onclick="checkQuiz()">Submit Answers</button>
         </div>
     `;
@@ -800,8 +887,9 @@ function showQuiz() {
 function checkQuiz() {
     let q1 = $("#q1").val();
     let q2 = $("#q2").val();
+    let q3 = $("#q3").val();
 
-    if (q1 === "apples" && q2 === "score") {
+    if (q1 === "apples" && q2 === "score" && q3 === "own_apples") {
         showScreen("instructions");
     } else {
         alert("Incorrect answers! Review the instructions and try again.");
@@ -856,7 +944,7 @@ function timeOutScreen() {
 
     console.log('time out!')
 
-    const prolificLink = `https://app.prolific.com/submissions/complete?cc=${prolificCode}`; // ✅ Replace with your Prolific link
+    const prolificLink = "https://app.prolific.com/submissions/complete?cc=C1MSGBYV"; // ✅ Replace with your Prolific link
 
     $("#mainContent").html(`
             <div class="container text-center">
@@ -934,13 +1022,13 @@ function tutorialPraise(sourceId, targetId, callback) {
     const tutorialPraiseEntry = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
 
     $("#centered-message")
-        .html(`${sourceAvatarHTML} is telling ${targetAvatarHTML}: '${tutorialPraiseEntry.text}'`)
+        .html(`${sourceAvatarHTML} is praising ${targetAvatarHTML}: '${tutorialPraiseEntry.text}'`)
         .fadeIn();
 
     if (targetId === "PLAYER") {
         $("#punishment-popup")
             .addClass("praise-popup")
-            .html(`${sourceAvatarHTML} is telling you: '${tutorialPraiseEntry.text}'`)
+            .html(`${sourceAvatarHTML} is praising you: '${tutorialPraiseEntry.text}'`)
             .fadeIn();
     }
 
@@ -988,7 +1076,7 @@ $(document).ready(() => {
         user = data;
         console.log('login data' + JSON.stringify(user))
 
-        if (testMode && jumpSurvey) {
+        if (testMode && (jumpSurvey || jumpSias)) {
             const targetSize = Math.max(2, parseInt(groupSize, 10) || 2);
             const testRoomId = `t_${Math.random().toString(36).substr(2, 4)}`;
             const tempUsers = { [user.id]: user };
@@ -1006,7 +1094,7 @@ $(document).ready(() => {
             user.roomId = testRoomId;
             socket.emit("test_setup", { userId: user.id, roomId: testRoomId, groupSize: targetSize });
             gameFrozen = true;
-            currentPostGameStep = 0;
+            currentPostGameStep = jumpSias ? postGameSteps.indexOf("sias") : 0;
             processPostGameStep();
             return;
         }
@@ -1218,16 +1306,7 @@ $(document).ready(() => {
             </div>
         `).join("");
 
-        /* let gridHtml = '<table class="table-bordered mx-auto">';
-         for (let y = 0; y < 10; y++) {
-             gridHtml += "<tr>";
-             for (let x = 0; x < 15; x++) {
-                 let cellClass = x <= 2 ? "orchard" : x >= 12 ? "river" : "land"; // ✅ Assign terrain class
-                 gridHtml += `<td id="cell-${x}-${y}" class="${cellClass}"></td>`;
-                 }
-             gridHtml += "</tr>";
-         }
-         gridHtml += "</table>";*/
+        
         let gridHtml = `
           <div id="game-area" style="position: relative; display: inline-block;">
             <div id="grid" class="game-grid">`;
@@ -1249,10 +1328,7 @@ $(document).ready(() => {
             <div id="punishment-popup" style="display:none;"></div>
           </div>
         `;
-
-
-        // <div class="row justify-content-center">${userHtml}</div>
-        // <div class="row">${otherUsersHtml}</div>
+        
         $("#mainContent").html(`
             <div class="container">
             <div class="row justify-content-center"><h2>Apple Harvest Game</h2></div>
@@ -1321,20 +1397,13 @@ $(document).ready(() => {
 
             //enable water logic
             if (window.flags?.waterCue) {
-                // 💧 Entering water
+                // 💧 Track water entry/exit for DB logging
                 if (!state.inWater && nowInWater) {
                     state.inWater = true;
                     state.enterTime = Date.now();
-
-                    // If player already has a drop — remove it
-                    $(`.water-drop[data-user-id="${id}"]`).remove();
-                    state.dropActive = false;
                 }
-                // 💧 Leaving water
                 else if (state.inWater && !nowInWater) {
                     const timeInWater = (Date.now() - state.enterTime) / 1000;
-                    showWaterDrop(id, timeInWater / 2);
-
                     if (id === user.id) {
                         socket.emit("water_event", {
                             userId: user.id,
@@ -1343,26 +1412,30 @@ $(document).ready(() => {
                             dropDuration: timeInWater / 2
                         });
                     }
-
                     state.inWater = false;
                     state.enterTime = null;
                 }
-
-                // 🔁 Keep active drops following player
-                const drop = document.querySelector(`.water-drop[data-user-id="${id}"]`);
-                if (state.dropActive && drop) {
-                    const avatar = document.querySelector(`img.player-avatar[data-user-id="${id}"]`);
-                    if (avatar && avatar.parentElement !== drop.parentElement) {
-                        avatar.parentElement.appendChild(drop);
-                    }
-
-                    // Remove expired drops
-                    if (Date.now() > state.dropExpiresAt) {
-                        drop.remove();
-                        state.dropActive = false;
-                    }
-                }
             }//water logic
+
+            // 🔁 Re-attach coop-drop if visible (coop_update drives show/hide)
+            const coopDrop = document.querySelector(`.coop-drop[data-user-id="${id}"]`);
+            if (coopDrop) {
+                const avatar = document.querySelector(`img.player-avatar[data-user-id="${id}"]`);
+                if (avatar && avatar.parentElement !== coopDrop.parentElement) {
+                    avatar.parentElement.style.position = "relative";
+                    avatar.parentElement.appendChild(coopDrop);
+                }
+            }
+
+            // 🔁 Re-attach stain if visible
+            const stain = document.querySelector(`.coop-stain[data-user-id="${id}"]`);
+            if (stain) {
+                const avatar = document.querySelector(`img.player-avatar[data-user-id="${id}"]`);
+                if (avatar && avatar.parentElement !== stain.parentElement) {
+                    avatar.parentElement.style.position = "relative";
+                    avatar.parentElement.appendChild(stain);
+                }
+            }
 
             playerStates[id] = state;
         });//for each
@@ -1396,6 +1469,27 @@ $(document).ready(() => {
 
 
 
+    // === Coop indicator handler ===
+    socket.on("coop_update", ({ userId, coopValue }) => {
+        if (window.flags?.waterCue) {
+            if (coopValue > 0.7) {
+                const wasAbsent = !document.querySelector(`.coop-drop[data-user-id="${userId}"]`);
+                showCoopDrop(userId);
+                if (wasAbsent) console.log(`[Coop] Drop appeared for player ${userId} — coop = ${coopValue.toFixed(3)}`);
+            } else {
+                hideCoopDrop(userId);
+            }
+        }
+        if (window.flags?.stainCue) {
+            if (coopValue < 0.3) {
+                showStain(userId, coopValue);
+            } else {
+                hideStain(userId);
+            }
+        }
+    });
+    // === End Coop indicator handler ===
+
     //update score
     socket.on("update_scores", (scores) => {
         console.log('Update Scores')
@@ -1428,10 +1522,10 @@ $(document).ready(() => {
         const punisherAvatar = `<img src="${punisher.avatar}" width="30" class="inline-avatar">`;
         const punishedAvatar = `<img src="${punished.avatar}" width="30" class="inline-avatar">`;
 
-        $("#centered-message").html(`${punisherAvatar} is telling ${punishedAvatar}: '${punishMessage}'`).fadeIn();
+        $("#centered-message").html(`${punisherAvatar} is asking ${punishedAvatar} to help clean: '${punishMessage}'`).fadeIn();
 
         if (user.id === punishedId) {
-            $("#punishment-popup").html(`${punisherAvatar} is telling you: '${punishMessage}'`).fadeIn();
+            $("#punishment-popup").html(`${punisherAvatar} is asking you to help clean: '${punishMessage}'`).fadeIn();
         }
 
         // ✅ After 3 seconds: cleanup and re-render
@@ -1479,10 +1573,10 @@ $(document).ready(() => {
         const praiserAvatar = `<img src="${praiser.avatar}" width="30" class="inline-avatar">`;
         const praisedAvatar = `<img src="${praised.avatar}" width="30" class="inline-avatar">`;
 
-        $("#centered-message").html(`${praiserAvatar} is telling ${praisedAvatar}: '${praiseMessage}'`).fadeIn();
+        $("#centered-message").html(`${praiserAvatar} is praising ${praisedAvatar}: '${praiseMessage}'`).fadeIn();
 
         if (user.id === praisedId) {
-            $("#punishment-popup").addClass("praise-popup").html(`${praiserAvatar} is telling you: '${praiseMessage}'`).fadeIn();
+            $("#punishment-popup").addClass("praise-popup").html(`${praiserAvatar} is praising you: '${praiseMessage}'`).fadeIn();
         }
 
         setTimeout(() => {
@@ -1499,15 +1593,13 @@ $(document).ready(() => {
             gameFrozen = false;
         }, 3000);
     });
-
-
-    // Final screen
-    socket.on("experiment_ended", (data) => {
-        console.log('date: ' + data)
-        console.log('star pay:' + JSON.stringify({ data }))
-        console.log('star pay:' + data.starPay)
-        const prolificLink = `https://app.prolific.com/submissions/complete?cc=${prolificCode}`; // ✅ Replace with your Prolific link
-        const starPay = payApple; // ✅ Define how much each apple (star) is worth in GBP
+// Final screen
+   socket.on("experiment_ended", (data) => {
+    console.log('date: ' + data)
+    console.log('star pay:'+JSON.stringify({data}))
+    console.log('star pay:'+data.starPay)
+    const prolificLink = "https://app.prolific.com/submissions/complete?cc=CTTGOUEO"; // ✅ Replace with your Prolific link
+    const starPay = payApple; // ✅ Define how much each apple (star) is worth in GBP
 
         const starScore = data.starScore || 0; // ✅ Total apples collected
         const bonusAmount = (starScore * starPay).toFixed(2); // ✅ Calculate bonus amount
@@ -1552,6 +1644,7 @@ $(document).ready(() => {
         "survey_coop",
         "survey_selfish",
         "survey_team",
+        "sias",
         "demographics"
     ];
     let currentPostGameStep = 0;
@@ -1611,6 +1704,8 @@ $(document).ready(() => {
 
         if (stepKey === "demographics") {
             showDemographicsScreen();
+        } else if (stepKey === "sias") {
+            showSiasScreen();
         } else if (surveyConfigs[stepKey]) {
             showSurveyScreen(surveyConfigs[stepKey]);
         } else {
@@ -1833,6 +1928,98 @@ $(document).ready(() => {
             // ignore errors silently
         }
     }
+
+    // === SIAS Screen ===
+    function showSiasScreen() {
+        const siasItems = [
+            "I get nervous if I have to speak with someone in authority (teacher, boss, etc.)",
+            "I have difficulty making eye-contact with others",
+            "I become tense if I have to talk about myself or my feelings",
+            "I find difficulty mixing comfortably with the people I work with",
+            "I tense-up if I meet an acquaintance in the street",
+            "When mixing socially I am uncomfortable",
+            "I feel tense if I am alone with just one other person",
+            "I am at ease meeting people at parties, etc.",
+            "I have difficulty talking with other people",
+            "I find it easy to think of things to talk about.",
+            "I worry about expressing myself in case I appear awkward",
+            "I find it difficult to disagree with another's point of view",
+            "I have difficulty talking to attractive persons of the opposite sex",
+            "I find myself worrying that I won't know what to say in social situations",
+            "I am nervous mixing with people I don't know well",
+            "I feel I'll say something embarrassing when talking",
+            "When mixing in a group I find myself worrying I will be ignored",
+            "I am tense mixing in a group",
+            "I am unsure whether to greet someone I know only slightly"
+        ];
+
+        const labels = ["Not at all", "Slightly", "Moderately", "Very", "Extremely"];
+
+        let rowsHtml = siasItems.map((text, i) => {
+            const itemNum = i + 1;
+            const radios = [0, 1, 2, 3, 4].map(val => `
+                <td class="text-center" style="min-width:70px;">
+                    <input type="radio" name="sias_${itemNum}" value="${val}" required>
+                </td>
+            `).join("");
+            return `
+                <tr>
+                    <td class="text-start pe-3" style="max-width:420px;">${itemNum}. ${escapeHtml(text)}</td>
+                    ${radios}
+                </tr>`;
+        }).join("");
+
+        const headerCols = labels.map(l => `<th class="text-center" style="font-size:0.8rem;">${l}</th>`).join("");
+
+        $("#mainContent").html(`
+            <div class="container text-center" style="max-width:760px;">
+                <h2 class="mb-3">Questionnaire</h2>
+                <p class="lead mb-1">For each statement below, please indicate how characteristic or true it is of you.</p>
+                <p class="text-muted mb-4" style="font-size:0.9rem;">0 = Not at all characteristic &nbsp;·&nbsp; 4 = Extremely characteristic</p>
+                <form id="siasForm">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-start">Statement</th>
+                                    ${headerCols}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="sias-error" class="text-danger mb-2" style="display:none;">Please answer all questions before submitting.</div>
+                    <button type="submit" class="btn btn-success mt-2 mb-4">Submit</button>
+                </form>
+            </div>
+        `);
+
+        $("#siasForm").submit(function (e) {
+            e.preventDefault();
+
+            const responses = [];
+            for (let i = 1; i <= 19; i++) {
+                const val = $(`input[name="sias_${i}"]:checked`).val();
+                if (val === undefined) {
+                    $("#sias-error").show();
+                    return;
+                }
+                responses.push(parseInt(val, 10));
+            }
+
+            $("#sias-error").hide();
+            $(this).find("button[type=submit]").prop("disabled", true).text("Saving...");
+
+            socket.emit("submit_sias", {
+                userId: user.id,
+                roomId: roomId,
+                responses
+            });
+        });
+    }
+    // === End SIAS Screen ===
 
     // ✅ Show demographics screen
     function showDemographicsScreen() {

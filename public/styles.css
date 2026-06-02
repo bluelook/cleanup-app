@@ -71,14 +71,15 @@
   font-size: 20px;
   pointer-events: none;
   z-index: 100;
+  background: transparent;
+  line-height: 1;
 }
 
-/* Private message: fixed at bottom of screen */
+/* Private message: just below the board */
 #punishment-popup {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  display: block;
+  margin: 12px auto 0;
+  width: fit-content;
   background-color: rgba(255, 255, 255, 0.95);
   border: 2px solid red;
   border-radius: 8px;
@@ -169,13 +170,21 @@
 }
 
 
-.water-drop {
+.water-drop, .coop-drop {
   animation: float 1s ease-in-out infinite alternate;
   font-size: 20px;
 }
 @keyframes float {
   from { transform: translate(-50%, -2px); }
   to   { transform: translate(-50%, 2px); }
+}
+
+.coop-stain {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .player-avatar[data-user-id="TUTORIAL_DUMMY"] {

@@ -3,7 +3,7 @@ USE game_data;
 
 CREATE TABLE IF NOT EXISTS movements (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    exp_name VARCHAR(20),
+    exp_name VARCHAR(50),
     group_size INT,
     room_id VARCHAR(10),
     player_id VARCHAR(20),
@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS movements (
     ball_score INT,
     picked_star BOOLEAN,
     picked_ball BOOLEAN,
+    coop_value FLOAT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -65,6 +66,18 @@ CREATE TABLE IF NOT EXISTS praises (
   praise_message VARCHAR(255),
   message_id VARCHAR(20),
   timestamp INT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS sias (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  player_id VARCHAR(20) NOT NULL,
+  room_id VARCHAR(10) NOT NULL,
+  sias_1 INT, sias_2 INT, sias_3 INT, sias_4 INT, sias_5 INT,
+  sias_6 INT, sias_7 INT, sias_8 INT, sias_9 INT, sias_10 INT,
+  sias_11 INT, sias_12 INT, sias_13 INT, sias_14 INT, sias_15 INT,
+  sias_16 INT, sias_17 INT, sias_18 INT, sias_19 INT,
+  total_score INT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
