@@ -16,6 +16,17 @@
     <p>Select a version:</p>
 
     <div class="container" style="max-width: 420px;">
+        <label for="layoutSelect" class="form-label">Layout variant</label>
+        <select id="layoutSelect" class="form-select mb-1">
+            <option value="classic" selected>Classic (standard)</option>
+            <option value="upper">Upper playground (premium upper zone)</option>
+            <!-- <option value="teams">Teams (blue / orange)</option> TEAMS disabled -->
+            <option value="corners">Corners (2 orchards + 2 lakes)</option>
+        </select>
+        <div id="layoutDesc" class="text-muted mb-3" style="font-size:0.82rem;"></div>
+    </div>
+
+    <div class="container" style="max-width: 420px;">
         <label for="groupSize" class="form-label">Group size</label>
         <select id="groupSize" class="form-select mb-3">
             <option value="2">2</option>
@@ -99,6 +110,20 @@
     </div>
 
     <script>
+        const layoutSelect = document.getElementById("layoutSelect");
+        const layoutDesc  = document.getElementById("layoutDesc");
+        const layoutDescriptions = {
+            classic: "One river (right) and one orchard (left). Standard layout.",
+            upper:   "Two stacked playgrounds. The upper zone is more productive (higher apple & dirt spawn rates). Players move freely between them.",
+            // teams: "Players are split into a Blue team and an Orange team. Each team is encouraged to specialise: one player harvests apples, the other cleans.", // TEAMS disabled
+            corners: "Two orchards (top-left / bottom-left) and two lakes (top-right / bottom-right) at the corners of the grid."
+        };
+        function updateLayoutDesc() {
+            layoutDesc.textContent = layoutDescriptions[layoutSelect.value] || "";
+        }
+        layoutSelect.addEventListener("change", updateLayoutDesc);
+        updateLayoutDesc();
+
         const groupSizeSelect = document.getElementById("groupSize");
         const testModeCheckbox = document.getElementById("testMode");
         const skipTutorialWrap = document.getElementById("skipTutorialWrap");
@@ -178,6 +203,7 @@
         document.querySelectorAll("button[data-mode]").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const mode = btn.getAttribute("data-mode");
+                const selectedLayout = layoutSelect.value;
                 const groupSize = groupSizeSelect.value;
                 const prolificCode = document.getElementById("prolificCode").value.trim();
                 const testMode = testModeCheckbox.checked ? "true" : "false";
@@ -193,7 +219,8 @@
                 const skipParam = testMode === "true"
                     ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&jumpSias=${jumpSias}&testDuration=${testDuration}`
                     : "";
-                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${skipParam}${tutorialParam}`;
+                const layoutParam = selectedLayout !== "classic" ? `&layout=${selectedLayout}` : "";
+                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${layoutParam}${skipParam}${tutorialParam}`;
             });
         });
     </script>

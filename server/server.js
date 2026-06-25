@@ -173,11 +173,18 @@ const DEFAULT_TASK_TIME = 600; // time of the experiment in seconds (per-room de
 const DEFAULT_GROUP_SIZE = 4; // number of players in a room
 const starPay = 0.02; //Define how much each apple (star) is worth in GBP
 
-const P_star = 0.9; //probability of star to appear every second
-const P_ball = 0.6; //probability of star to appear every second
+// Layout: "main" — configurable rates for the main lower playground
+const P_star = 0.9; //probability of star to appear every second (main playground)
+const P_ball = 0.6; //probability of ball to appear every second (main playground)
+
+// Layout: "upper" — configurable rates for the premium upper playground
+const P_star_upper = 0.97;
+const P_ball_upper = 0.85;
 
 const GRID_WIDTH = 15;
 const GRID_HEIGHT = 10;
+const GRID_HEIGHT_UPPER = 20; // layout "upper" uses a 15×20 grid
+
 const startingPositions = [
     { x: 5, y: 4 },
     { x: 7, y: 5 },
@@ -186,6 +193,18 @@ const startingPositions = [
     { x: 8, y: 2 },
     { x: 9, y: 7 }
 ];
+// Starting positions for "upper" layout — players start in the Premium section (y 0-9)
+const startingPositionsUpper = [
+    { x: 5, y: 4 },
+    { x: 7, y: 5 },
+    { x: 6, y: 3 },
+    { x: 8, y: 6 },
+    { x: 8, y: 2 },
+    { x: 9, y: 7 }
+];
+
+// Per-room layout tracking ('classic' | 'upper' | 'teams' | 'corners')
+const roomLayouts = {};
 
 
 
@@ -195,7 +214,8 @@ const coopValues = {}; // { [userId]: number } current coop score per player
 function updateCoop(userId) {
     const user = users[userId];
     if (!user || !user.position) return;
-    const locVal = getLocationValue(user.position.x);
+    const roomLayout = roomLayouts[user.roomId] || 'classic';
+    const locVal = getLocationValue(user.position.x, user.position.y, roomLayout);
     const prev = (coopValues[userId] !== undefined) ? coopValues[userId] : 0.5;
     coopValues[userId] = computeNewCoop(prev, locVal);
 }
@@ -262,11 +282,13 @@ function cleanupRoom(roomId) {
     delete roomTimeLeft[roomId];
     delete StartTime[roomId];
     delete gameStarted[roomId];
+    delete roomLayouts[roomId];
 }
 
 io.on("connection", (socket) => {
     // 🟢 1.  Identify mode and load its flags first
     const mode = socket.handshake.query.mode || "none";
+    const layout = socket.handshake.query.layout || "classic"; // 'classic'|'upper'|'teams'|'corners'
     const testMode = socket.handshake.query.test === "true"; // ✅ Read test mode flag
     let taskTime = DEFAULT_TASK_TIME;
     const modeKey = mode === "waterPunish" ? "wp" : mode;
@@ -373,23 +395,30 @@ io.on("connection", (socket) => {
             console.log(`[ROOM_ASSIGNED] Creating room ${roomId} with ${roomUsers.length} users`);
 
             chatMessages[roomId] = [];
+            roomLayouts[roomId] = layout;
+            const positions = (layout === 'upper') ? startingPositionsUpper : startingPositions;
             roomUsers.forEach((user, index) => {
                 user.roomId = roomId;
                 user.avatar = `images/player_${index + 1}.png`; //  Assign image avatar
-                user.position = startingPositions[index % startingPositions.length];
+                user.position = positions[index % positions.length];
                 user.star_score = 0;
                 user.ball_score = 0;
+                /* TEAMS LAYOUT — disabled
+                if (layout === 'teams') {
+                    user.team = index < Math.ceil(groupSize / 2) ? 'A' : 'B';
+                }
+                */
                 coopValues[user.id] = 0.5; // Start at neutral cooperation
                 userRooms[user.id] = roomId;
                 users[user.id] = user; //  Store full user object
-                console.log(`[ROOM_ASSIGNED] User ${user.username} (${user.id}) assigned to room ${roomId} as player ${index + 1}`);
+                console.log(`[ROOM_ASSIGNED] User ${user.username} (${user.id}) assigned to room ${roomId} as player ${index + 1}${user.team ? ' team:'+user.team : ''}`);
             });
 
 
             roomUsers.forEach(user => {
                 let socketId = connectedUsers[user.id];
                 if (socketId) {
-                    io.to(socketId).emit("room_assigned", { roomId, users: roomUsers });
+                    io.to(socketId).emit("room_assigned", { roomId, users: roomUsers, layout });
                     console.log(`[ROOM_ASSIGNED] ✅ Sent room_assigned event to ${user.username} (socket: ${socketId})`);
                 } else {
                     // Skip warning for dummy users in test mode
@@ -499,9 +528,10 @@ io.on("connection", (socket) => {
         // ✅ Start the game timer (spawning stars & balls, countdown)
         startRoomTimer(roomId);
 
-        // ✅ Emit game start event with room ID and users
-        io.to(`room_${roomId}`).emit("start_grid_game", { roomId, users: roomUsers });
-        console.log(`[START_GRID_GAME] ✅ Emitted start_grid_game event to room_${roomId}`);
+        // ✅ Emit game start event with room ID, users, and layout
+        const roomLayout = roomLayouts[roomId] || 'classic';
+        io.to(`room_${roomId}`).emit("start_grid_game", { roomId, users: roomUsers, layout: roomLayout });
+        console.log(`[START_GRID_GAME] ✅ Emitted start_grid_game event to room_${roomId} layout=${roomLayout}`);
     });   
 
     socket.on("disconnect", () => {
@@ -578,15 +608,22 @@ io.on("connection", (socket) => {
         if (direction === "ArrowDown") newY++;
     
         //  Check if move is valid
-        if (newX < 0 || newX >= GRID_WIDTH || newY < 0 || newY >= GRID_HEIGHT) {
+        const roomId = user.roomId;
+        const roomGridHeight = (roomLayouts[roomId] === 'upper') ? GRID_HEIGHT_UPPER : GRID_HEIGHT;
+        if (newX < 0 || newX >= GRID_WIDTH || newY < 0 || newY >= roomGridHeight) {
             console.log('leave because bounds')
             return;
         };
 
-        // ✅ Get only users in the same room
-       // let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
-        //  Get all users in the same room
-        let roomId = user.roomId;
+        // Upper layout: crossing between Premium (y 0-9) and Main (y 10-19) only allowed through the door (cols 6-8)
+        if (roomLayouts[roomId] === 'upper') {
+            const crossingBoundary = (y < 10 && newY >= 10) || (y >= 10 && newY < 10);
+            if (crossingBoundary && (newX < 6 || newX > 8)) {
+                return;
+            }
+        }
+
+        // Get all users in the same room
         if (!stars[roomId]) stars[roomId] = [];
         if (!balls[roomId]) balls[roomId] = [];
         let roomUsers = Object.values(users).filter(u => u.roomId === roomId);
@@ -653,9 +690,23 @@ io.on("connection", (socket) => {
         let created_at = new Date().toISOString().slice(0, 19).replace("T", " ");
         let timestamp = new Date()-StartTime[roomId];
 
+        // For "upper" layout: Premium = y 0-9 (top), Main = y 10-19 (bottom).
+        // Both saved as y 0-9; Main is adjusted down by 10 before INSERT.
+        let section = null;
+        let savedY = newY;
+        if (roomLayouts[roomId] === 'upper') {
+            if (newY < 10) {
+                section = 'premium';
+                // savedY unchanged (already 0-9)
+            } else {
+                section = 'main';
+                savedY = newY - 10; // 10-19 → 0-9
+            }
+        }
+
         const sql = `
-        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, section, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             roomId,
@@ -664,7 +715,8 @@ io.on("connection", (socket) => {
             userId,
             timestamp,
             newX,
-            newY,
+            savedY,
+            section,
             stars[roomId].length,
             balls[roomId].length,
             user.star_score,
@@ -679,7 +731,7 @@ io.on("connection", (socket) => {
             if (err) {
                 console.error("Failed to save movement:", err);
             } else {
-                console.log(`Movement saved for ${user.username} at (${newX}, ${newY})`);
+                console.log(`Movement saved for ${user.username} at (${newX}, ${savedY}) section=${section}`);
             }
         });             
     }); 
@@ -782,20 +834,40 @@ io.on("connection", (socket) => {
         balls[roomId] = []; //  Initialize balls array for this room
         console.log(`[TIMER] Initialized stars and balls arrays for room ${roomId}`);
 
+        const roomLayout = roomLayouts[roomId] || 'classic';
+        const gridH = (roomLayout === 'upper') ? GRID_HEIGHT_UPPER : GRID_HEIGHT;
+
         const interval = setInterval(() => {
             io.to(`room_${roomId}`).emit("update_timer", roomTimeLeft[roomId]);
-            
 
             roomTimeLeft[roomId]--;
-            //  Try to generate a new star (90% probability)
-           // console.log('new p star ='+ P_star/(1+balls[roomId].length))
-            if (Math.random() < P_star/(1+balls[roomId].length)) {
-                generateNewStar(roomId);
+
+            if (roomLayout === 'upper') {
+                const mainBalls    = balls[roomId].filter(b => b.y >= 10).length;
+                const premiumBalls = balls[roomId].filter(b => b.y < 10).length;
+                // Main section (y 10-19) — only affected by main river balls
+                if (Math.random() < P_star / (1 + mainBalls)) {
+                    generateNewStar(roomId, 'main', gridH);
+                }
+                if (Math.random() < P_ball) {
+                    generateNewBall(roomId, 'main', gridH);
+                }
+                // Premium section (y 0-9) — only affected by premium river balls
+                if (Math.random() < P_star_upper / (1 + premiumBalls)) {
+                    generateNewStar(roomId, 'premium', gridH);
+                }
+                if (Math.random() < P_ball_upper) {
+                    generateNewBall(roomId, 'premium', gridH);
+                }
+            } else {
+                if (Math.random() < P_star / (1 + balls[roomId].length)) {
+                    generateNewStar(roomId, 'classic', gridH);
+                }
+                if (Math.random() < P_ball) {
+                    generateNewBall(roomId, 'classic', gridH);
+                }
             }
-             //  Try to generate a new ball
-            if (Math.random() < P_ball) {
-                generateNewBall(roomId);
-            }
+
             if (roomTimeLeft[roomId] < 0) {
                 clearInterval(interval);
                 io.to(`room_${roomId}`).emit("time_up");
@@ -803,49 +875,84 @@ io.on("connection", (socket) => {
         }, 1000);
     }
 
-    function generateNewStar(roomId) {
+    // section: 'classic'|'main'|'premium'
+    function generateNewStar(roomId, section, gridH) {
         if (!stars[roomId]) return;
-    
+
+        const roomLayout = roomLayouts[roomId] || 'classic';
+
         let x, y;
         let attempts = 0;
         do {
-            x = Math.floor(Math.random() * 3); //  Only in first 3 columns
-            y = Math.floor(Math.random() * GRID_HEIGHT);
+            if (roomLayout === 'corners') {
+                // Diagonal orchards: top-left (x 0-4, y 0-2) or bottom-right (x 10-14, y 7-9)
+                if (Math.random() < 0.5) {
+                    x = Math.floor(Math.random() * 5);
+                    y = Math.floor(Math.random() * 3);
+                } else {
+                    x = GRID_WIDTH - 5 + Math.floor(Math.random() * 5);
+                    y = GRID_HEIGHT - 3 + Math.floor(Math.random() * 3);
+                }
+            } else {
+                x = Math.floor(Math.random() * 3);
+                if (section === 'premium') {
+                    y = Math.floor(Math.random() * 10);      // Premium: y 0-9 (top)
+                } else if (section === 'main') {
+                    y = 10 + Math.floor(Math.random() * 10); // Main: y 10-19 (bottom)
+                } else {
+                    y = Math.floor(Math.random() * gridH);
+                }
+            }
             attempts++;
         } while (
             attempts < 10 &&
-            (stars[roomId].some(s => s.x === x && s.y === y) || // Avoid overlapping stars
-            Object.values(users).some(u => u.roomId === roomId && u.position.x === x && u.position.y === y)) // Avoid players
+            (stars[roomId].some(s => s.x === x && s.y === y) ||
+            Object.values(users).some(u => u.roomId === roomId && u.position.x === x && u.position.y === y))
         );
-    
+
         if (attempts < 10) {
-            let star = { x, y };
-
-            stars[roomId].push(star);
-
+            stars[roomId].push({ x, y });
             console.log(`New star generated in room ${roomId} at (${x}, ${y})`);
-
             io.to(`room_${roomId}`).emit("update_stars", stars[roomId]);
         }
     }
-    
-    function generateNewBall(roomId) {
+
+    function generateNewBall(roomId, section, gridH) {
         if (!balls[roomId]) {
             balls[roomId] = [];
         }
-    
+
+        const roomLayout = roomLayouts[roomId] || 'classic';
+
         let x, y;
         let attempts = 0;
         do {
-            x = Math.floor(Math.random() * 3) + (GRID_WIDTH - 3); //  Rightmost 3 columns (12, 13, 14)
-            y = Math.floor(Math.random() * GRID_HEIGHT);
+            if (roomLayout === 'corners') {
+                // Diagonal lakes: top-right (x 10-14, y 0-2) or bottom-left (x 0-4, y 7-9)
+                if (Math.random() < 0.5) {
+                    x = GRID_WIDTH - 5 + Math.floor(Math.random() * 5);
+                    y = Math.floor(Math.random() * 3);
+                } else {
+                    x = Math.floor(Math.random() * 5);
+                    y = GRID_HEIGHT - 3 + Math.floor(Math.random() * 3);
+                }
+            } else {
+                x = GRID_WIDTH - 3 + Math.floor(Math.random() * 3); // rightmost 3 columns
+                if (section === 'premium') {
+                    y = Math.floor(Math.random() * 10);      // Premium: y 0-9 (top)
+                } else if (section === 'main') {
+                    y = 10 + Math.floor(Math.random() * 10); // Main: y 10-19 (bottom)
+                } else {
+                    y = Math.floor(Math.random() * gridH);
+                }
+            }
             attempts++;
         } while (
             attempts < 10 &&
-            (balls[roomId].some(b => b.x === x && b.y === y) ||  // Avoid overlapping balls
-            Object.values(users).some(u => u.roomId === roomId && u.position.x === x && u.position.y === y)) // Avoid players
+            (balls[roomId].some(b => b.x === x && b.y === y) ||
+            Object.values(users).some(u => u.roomId === roomId && u.position.x === x && u.position.y === y))
         );
-    
+
         if (attempts < 10) {
             let newBall = { x, y };
             balls[roomId].push(newBall);
@@ -872,12 +979,17 @@ io.on("connection", (socket) => {
         let timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
         let starScore = user.star_score || 0;
         let ballScore = user.ball_score || 0;
-    
+        // let team = user.team || null; // TEAMS disabled
+
         const sql = `
-            INSERT INTO demographics (player_id, player_name,room_id, group_size, exp_name, timestamp, age, gender, education, comments, star_score, ball_score)
-            VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    
-        const values = [userId, userName,roomId, groupSize, expName, timestamp, age, gender, education, comments, starScore, ballScore];
+            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, timestamp, age, gender, education, comments, star_score, ball_score)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            /* TEAMS disabled — add back when re-enabling:
+            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, timestamp, age, gender, education, comments, star_score, ball_score, team)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` */
+
+        const values = [userId, userName, roomId, groupSize, expName, timestamp, age, gender, education, comments, starScore, ballScore];
+        // TEAMS disabled — add back: [..., team]
     
         db.query(sql, values, (err, result) => {
             if (err) {

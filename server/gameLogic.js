@@ -21,10 +21,15 @@ const COOP_W = 0.05;
 const COOP_DROP_THRESHOLD  = 0.7;
 const COOP_STAIN_THRESHOLD = 0.3;
 
-function getLocationValue(x) {
-    if (x <= 2)           return 0;   // apple/orchard zone
-    if (x >= GRID_WIDTH - 3) return 1; // water/river zone
-    return 0.5;                        // middle land
+function getLocationValue(x, y, roomLayout) {
+    if (roomLayout === 'corners') {
+        if ((x >= 10 && y <= 2) || (x <= 4 && y >= 7)) return 1;  // lake zone — cooperative
+        if ((x <= 4  && y <= 2) || (x >= 10 && y >= 7)) return 0; // orchard zone — selfish
+        return 0.5;
+    }
+    if (x <= 2)              return 0;   // orchard zone — selfish
+    if (x >= GRID_WIDTH - 3) return 1;   // river zone — cooperative
+    return 0.5;
 }
 
 function computeNewCoop(prev, locationValue, w = COOP_W) {

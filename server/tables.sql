@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS movements (
     time_stamp INT,
     x INT,
     y INT,
+    section VARCHAR(10) DEFAULT NULL,
     stars_in_room INT,
     balls_in_room INT,
     star_score INT,
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS demographics (
     education ENUM('Basic', 'High school or equivalent (GED)', 'College', 'Graduate degree', 'Prefer not to say') NOT NULL,
     comments VARCHAR(1000) DEFAULT NULL,
     star_score INT DEFAULT 0 NOT NULL,
-    ball_score INT DEFAULT 0 NOT NULL
+    ball_score INT DEFAULT 0 NOT NULL,
+    team VARCHAR(10) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS water_events (

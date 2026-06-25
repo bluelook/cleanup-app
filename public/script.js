@@ -1,8 +1,8 @@
-﻿//const socket = io("http://localhost:5000");
-//const socket = io();
+﻿
 // === read window.flags ===
 const params = new URLSearchParams(window.location.search);
 const mode = params.get('mode') || 'full';
+const layout = params.get('layout') || 'classic'; // 'classic'|'upper'|'teams'|'corners'
 const groupSize = params.get('groupSize') || '';
 const tutorialStartParam = parseInt(params.get('tutorialStart'), 10);
 const skipTutorial = params.get('skipTutorial') === 'true';
@@ -13,8 +13,73 @@ const testMode = params.get('test') === 'true';  // ✅ Testing mode flag
 const testDuration = params.get('testDuration') || '';
 // === end of read window.flags ===
 
-const socket = io({ query: { mode, groupSize, test: testMode, testDuration } });
+const socket = io({ query: { mode, layout, groupSize, test: testMode, testDuration } });
 
+// ---- Mobile input helpers ----
+function fireKey(key) {
+  $(document).trigger($.Event('keydown', { key }));
+  setTimeout(() => $(document).trigger($.Event('keyup', { key })), 60);
+}
+
+function scaleGameAreaForMobile() {
+  if (window.innerWidth >= 640) return;
+  const area = document.getElementById('game-area') || document.getElementById('tutorial-area');
+  if (!area) return;
+  const origWidth = area.offsetWidth;
+  const origHeight = area.offsetHeight;
+  if (!origWidth) return;
+  const scale = Math.min(1, (window.innerWidth - 16) / origWidth);
+  if (scale >= 1) return;
+  area.style.transformOrigin = 'top center';
+  area.style.transform = `scale(${scale})`;
+  const wrapper = area.parentElement;
+  if (wrapper && wrapper.classList.contains('game-area-wrapper')) {
+    wrapper.style.height = `${origHeight * scale}px`;
+  }
+}
+
+function addMobileDpad() {
+  $('.mobile-dpad').remove();
+  $(document).off('touchstart.swipe touchend.swipe touchstart.dpad mousedown.dpad');
+
+  $('#mainContent').append(`
+    <div class="mobile-dpad" id="mobile-dpad">
+      <div class="dpad-row">
+        <div class="dpad-spacer"></div>
+        <button class="dpad-btn" data-dir="ArrowUp">&#9650;</button>
+        <div class="dpad-spacer"></div>
+      </div>
+      <div class="dpad-row">
+        <button class="dpad-btn" data-dir="ArrowLeft">&#9664;</button>
+        <button class="dpad-btn" data-dir="ArrowDown">&#9660;</button>
+        <button class="dpad-btn" data-dir="ArrowRight">&#9654;</button>
+      </div>
+    </div>`);
+
+  $(document).on('touchstart.dpad mousedown.dpad', '.dpad-btn', function(e) {
+    e.preventDefault();
+    fireKey($(this).data('dir'));
+  });
+
+  let swipeStart = null;
+  $(document).on('touchstart.swipe', '#game-area, #tutorial-area', function(e) {
+    const t = e.originalEvent.touches[0];
+    swipeStart = { x: t.clientX, y: t.clientY };
+  }).on('touchend.swipe', '#game-area, #tutorial-area', function(e) {
+    if (!swipeStart) return;
+    const t = e.originalEvent.changedTouches[0];
+    const dx = t.clientX - swipeStart.x;
+    const dy = t.clientY - swipeStart.y;
+    swipeStart = null;
+    if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      fireKey(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
+    } else {
+      fireKey(dy > 0 ? 'ArrowDown' : 'ArrowUp');
+    }
+  });
+}
+// ---- End mobile input helpers ----
 
 let user = null;
 let roomId = null;
@@ -22,12 +87,20 @@ let users = {};
 let waitingTimeout;
 const timeOut = testMode ? 5 : 10; // minutes
 const payApple = 0.02;//
-const chatCountdownSeconds = testMode ? 5 : 60;
+const chatCountdownSeconds = testMode ? 1 : 60;
 let instructionPage = 1; // ✅ Track the instruction page number
 let gameFrozen = false;
 let inTutorial = false; // ✅ Track if we're in tutorial mode
 // === Water tracking ===
 const playerStates = {}; // Track in-water state per player
+
+/* TEAMS LAYOUT — disabled
+function teamCssClass(team) {
+    if (team === 'A') return 'team-blue';
+    if (team === 'B') return 'team-orange';
+    return '';
+}
+*/
 
 function escapeHtml(value) {
     return String(value)
@@ -40,9 +113,9 @@ function escapeHtml(value) {
 
 
 function isWaterTile(x, y) {
-    // Adjust this condition to match your grid layout:
-    // here, x >= 12 means right side of the board is water
-    return x >= 12;
+    // Diagonal: top-right (x>=12, y<=2) and bottom-left (x<=2, y>=7) are water
+    if (layout === 'corners') return (x >= 10 && y <= 2) || (x <= 4 && y >= 7);
+    return x >= 12; // classic, upper, teams
 }
 
 function getTutorialModeFlags() {
@@ -195,6 +268,7 @@ function tutorialPunish(sourceId, targetId, callback) {
     explosion.style.left = "50%";
     explosion.style.transform = "translateX(-50%)";
     explosion.style.fontSize = "28px";
+
     wrapper.appendChild(explosion);
 
     const tutorialPunishEntry = punishmentMessages[Math.floor(Math.random() * punishmentMessages.length)];
@@ -271,7 +345,7 @@ function showScreen(screenType) {
                 <div class="container text-center">
                     <h2>Study Information</h2>
                     <div  class="container text-start ">
-                    <h3>Welcome to our experiment, it’s nice to meet you!</h3>
+                    <h3>Welcome to our experiment, it's nice to meet you!</h3>
                     
                     <p><strong>First, some information about the experiment:</strong></p>                 
                     <p>This study has been approved by the University of Haifa, Faculty of Social Sciences Research Ethics Committee.</p>
@@ -279,7 +353,7 @@ function showScreen(screenType) {
                     Uri Hertz, Department of Cognitive Sciences, University of Haifa, Haifa, Israel, 31905.<br>
                     <a href="mailto:uhertz@cog.haifa.ac.il">uhertz@cog.haifa.ac.il</a></p>
 
-                    <p>We would like to invite you to participate in this research project titled ‘The cognitive basis of social behavior’, aimed at understanding the way people learn and make decisions in social contexts. You should only participate if you want to; choosing not to take part will not disadvantage you in any way.</p>
+                    <p>We would like to invite you to participate in this research project titled 'The cognitive basis of social behavior', aimed at understanding the way people learn and make decisions in social contexts. You should only participate if you want to; choosing not to take part will not disadvantage you in any way.</p>
                     <p>Before you decide whether you want to take part, please read the following information carefully and discuss it with others if you wish. Ask us if there is anything that is not clear or you would like more information.</p>
                     <p>In this experiment, you will be asked to use your mouse while playing a multiplayer task. The task involves moving around a grid and collecting items, and interacting with other players. You will also be asked to answer some simple questions about yourself. Full instructions will be provided before the experiment begins.</p>
                     <p>There are no anticipated risks or benefits associated with participation in this study. Data collected in this experiment may be used for scientific publication and presentations, after anonymization and removal of all identifiable details.</p>
@@ -404,6 +478,27 @@ function showInstructions(page) {
         { text: "You are not the only farmer collecting apples and cleaning the river, other farmers are playing the game with you. <br>In the next step we will connect you to other players, and you will be able to send them a message before playing the apple harvest game together.<br>The number of apples each player collected will determine their individual bonus.", img: '' }
     ];
 
+    if (layout === 'upper') {
+        instructionScreens.push({
+            text: "In this game there are <b>two areas</b>, each with its own orchard and river.<br><br>"
+                + "<b>Each orchard is affected only by the river closest to it.</b><br>"
+                + "The dirt in the upper river affects the upper orchard only -- it has <b>no effect</b> on the lower orchard.<br>"
+                + "The dirt in the lower river affects the lower orchard only -- it has <b>no effect</b> on the upper orchard.<br><br>"
+                + "You are free to move between the upper and lower areas as you wish, through the <b>door</b> in the wall between them.",
+            img: ''
+        });
+    }
+
+    if (layout === 'corners') {
+        instructionScreens.push({
+            text: "In this game there are <b>two orchards</b> and <b>two lakes</b>, placed diagonally at the corners of the map.<br><br>"
+                + "The orchards are at the <b>top-left</b> and <b>bottom-right</b> corners. The lakes are at the <b>top-right</b> and <b>bottom-left</b> corners.<br><br>"
+                + "Apples don't grow if there is too much dirt in the lakes. <b>Cleaning either lake helps apple growth in both orchards.</b><br><br>"
+                + "You are free to move anywhere on the map.",
+            img: ''
+        });
+    }
+
     let totalPages = instructionScreens.length;
     let { text, img } = instructionScreens[page - 1];
 
@@ -425,7 +520,8 @@ function showInstructions(page) {
 // ✅ Handle Next/Back buttons in instructions
 function changeInstruction(direction) {
     instructionPage += direction;
-    if (instructionPage > 1) {
+    const totalInstructionPages = (layout === 'upper' || layout === 'corners') ? 2 : 1;
+    if (instructionPage > totalInstructionPages) {
         console.log('User' + JSON.stringify(user))
 
         socket.emit("join_waiting_list", user); // ✅ Join waiting list
@@ -450,41 +546,70 @@ function startTutorial(stage) {
     const flags = getTutorialModeFlags();
 
     // Define tutorial instructions for each stage
+    const step1TextUpper = "In this game there are <b>two areas</b>, each with its own orchard and river.<br><br>"
+        + "<b>Each orchard is affected only by the river closest to it.</b><br>"
+        + "The dirt in the upper river affects the upper orchard only &mdash; it has <b>no effect</b> on the lower orchard.<br>"
+        + "The dirt in the lower river affects the lower orchard only &mdash; it has <b>no effect</b> on the upper orchard.<br><br>"
+        + "You are free to move between the upper and lower areas as you wish.<br>"
+        + "You move using your keyboard arrow keys or the on-screen arrows. Let's try it &ndash; move around the grid.";
+
+    const step1TextCorners = "In this game there are <b>two orchards</b> and <b>two lakes</b>, placed diagonally at the corners of the map.<br><br>"
+        + "The orchards are at the <b>top-left</b> and <b>bottom-right</b> corners. The lakes are at the <b>top-right</b> and <b>bottom-left</b> corners.<br><br>"
+        + "Apples don't grow if there is too much dirt in the lakes. <b>Cleaning either lake helps apple growth in both orchards.</b><br><br>"
+        + "You are free to move anywhere on the map.<br>"
+        + "You move using your keyboard arrow keys or the on-screen arrows. Let's try it &ndash; move around the grid.";
+
+    const step1Text = layout === 'upper' ? step1TextUpper
+        : layout === 'corners' ? step1TextCorners
+        : "In this multiplayer apple harvest game, you play a farmer harvesting apples. <br>You move around a 2D map using your keyboard arrow keys or the on-screen arrows.<br>Let's try it - Move around the grid.";
+
+    const step2Text = layout === 'corners'
+        ? "Apples grow in the orchards, the green corners of the map. <br>You collect them by moving over them. <br>Let's try it - move to collect the apple."
+        : "Apples grow in the orchard, the green squares on the left of the map. <br>You collect them by moving over them. <br>Let's try it - move to collect the apple.";
+
+    const step3Text = layout === 'corners'
+        ? "Apples don't grow if there is too much dirt in the lakes, the blue corners of the map.<br>To clean a lake from dirt, you move over it.<br>Let's try it - move to clean the dirt from the lake."
+        : "Apples don't grow if there is too much dirt in the river, the blue squares on the right of the map.<br>To clean the river from dirt, you move over it.<br>Let's try it - move to clean the dirt from the river.";
+
+    const step45Text = layout === 'corners'
+        ? "Your goal is to collect as many apples as possible, each apple will earn you <b>&pound;" + payApple + "</b> bonus.<br>To get more apples, you need to clean the lakes first.<br>Let's try it - move to clean the lake, and then collect the apple."
+        : "Your goal is to collect as many apples as possible, each apple will earn you <b>&pound;" + payApple + "</b> bonus.<br>To get more apples, you need to clean the river first.<br>Let's try it - move to clean the river, and then collect the apple.";
+
     let tutorialStages = [
-        {
-            text: "In this multiplayer apple harvest game, you play a farmer harvesting apples. <br>You move around a D map using your keyboard arrow keys.<br>Let’s try it – Use the arrow keys to move around the grid.",
-            objective: "Move 3 steps."
-        },
-        {
-            text: "Apples grow in the orchard, the green squares on the left of the map. <br>You collect them by moving over them. <br>Let’s try it – move to collect the apple. ",
-            objective: "Collect the apple."
-        },
-        {
-            text: "Apples don’t grow if there is too much dirt in the river, the blue squares on the right of the map.<br>To clean the river from dirt, you move over it.<br>Let’s try it – move to clean the dirt from the river.",
-            objective: "Clean the dirt."
-        },
-        {
-            text: "Your goal is to collect as many apples as possible, each apple will earn you <b>£" + payApple + "</b> bonus.<br>To get more apples, you need to clean the river first.<br>Let’s try it – move to clean the river, and then collect the apple.",
-            objective: "Clean the dirt."
-        },
-        {
-            text: "Your goal is to collect as many apples as possible, each apple will earn you <b>£" + payApple + "</b> bonus.<br>To get more apples, you need to clean the river first.<br>Let’s try it – move to clean the river, and then collect the apple.",
-            objective: "Collect the new apple."
-        },
+        { text: step1Text,  objective: "Move 3 steps." },
+        { text: step2Text,  objective: "Collect the apple." },
+        { text: step3Text,  objective: "Clean the dirt." },
+        { text: step45Text, objective: "Clean the dirt." },
+        { text: step45Text, objective: "Collect the new apple." },
     ];
+
+    // ⭐ Insert DOOR stage only for upper layout
+    if (layout === 'upper') {
+        tutorialStages.push({
+            text: "The two game areas are connected by a <b>door</b> in the wall between them.<br>Move through the door to reach the lower area -- you can always come back!",
+            objective: "Move through the door to the lower area.",
+            isDoorStage: true
+        });
+    }
 
     // ⭐ Insert WATER stage only if mode supports water
     if (flags.water) {
+        const isCorners = layout === 'corners';
         tutorialStages.push({
-            text: "In this game, players who spend time cleaning the river are rewarded with a water drop 💧 above their head.<br>The drop appears when a player has been spending enough time in the river area, and disappears when they stop.<br>You can keep moving while the drop is present.",
-            objective: "Enter the river → Exit the river → See the drop"
+            text: isCorners
+                ? "In this game, players who spend time cleaning the lakes are rewarded with a water drop 💧 above their head.<br>The drop appears when a player has been spending enough time in a lake, and disappears when they stop.<br>You can keep moving while the drop is present."
+                : "In this game, players who spend time cleaning the river are rewarded with a water drop 💧 above their head.<br>The drop appears when a player has been spending enough time in the river area, and disappears when they stop.<br>You can keep moving while the drop is present.",
+            objective: isCorners
+                ? "Enter a lake → Exit the lake → See the drop"
+                : "Enter the river → Exit the river → See the drop"
         });
     }
 
     // ⭐ Insert STAIN stage only if mode supports stain
     if (flags.stain) {
         tutorialStages.push({
-            text: "Players who spend most of their time collecting apples without helping clean will have a stain 🟤 appear above their head.<br>Collect all the apples in the orchard.",
+            text: "Players who spend most of their time collecting apples without helping clean will have a stain 🟤 appear above their head.<br>Collect all the apples in the "
+                + (layout === 'corners' ? "orchards." : "orchard."),
             objective: "Collect all apples → See the stain appear"
         });
     }
@@ -523,28 +648,46 @@ function startTutorial(stage) {
     if (flags.punish) punishStage = tutorialStages.length - (flags.praise ? 1 : 0);
     if (flags.praise) praiseStage = tutorialStages.length;
 
-    // Place objects based on the tutorial stage
-    if (stage === 2) gridObjects.apple = { x: 0, y: 2 };
-    if (stage === 3) gridObjects.dirt = { x: 6, y: 1 };
-    if (stage === 4) gridObjects.dirt = { x: 6, y: 0 }; // Collecting dirt instead of cleaning
+    // Place objects based on the tutorial stage.
+    // In upper layout, y=2 is the wall row — keep objects in y 0-1.
+    // In corners layout, apples go to orchard corners; dirt goes to lake corners.
+    const upperLayout = layout === 'upper';
+    const cornersLayout = layout === 'corners';
+    if (stage === 2) {
+        if (cornersLayout)    { gridObjects.apple = { x: 0, y: 0 }; position = { x: 3, y: 0 }; }
+        else if (upperLayout) { gridObjects.apple = { x: 0, y: 1 }; position = { x: 3, y: 1 }; }
+        else                  { gridObjects.apple = { x: 0, y: 2 }; position = { x: 3, y: 2 }; }
+    }
+    if (stage === 3) gridObjects.dirt  = cornersLayout ? { x: 6, y: 0 } : { x: 6, y: 1 };
+    if (stage === 4) gridObjects.dirt  = cornersLayout ? { x: 6, y: 0 } : { x: 6, y: 0 };
     if (stage === 5) {
-        position = { x: 6, y: 0 };
-        gridObjects.apple = { x: 0, y: 1 }; // Apple appears after cleaning dirt
+        position = cornersLayout ? { x: 6, y: 0 } : { x: 6, y: 0 };
+        gridObjects.apple = cornersLayout ? { x: 0, y: 0 } : { x: 0, y: 1 };
     }
     if (stage === waterStage) {
-        position = { x: 3, y: 1 }; // Start on land for the water test
+        position = { x: 3, y: 1 };
     }
     if (stage === stainStage) {
         position = { x: 3, y: 1 };
-        gridObjects.apples = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }];
+        gridObjects.apples = cornersLayout
+            ? [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 6, y: 2 }]  // both orchard corners
+            : upperLayout
+                ? [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }]
+                : [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }];
     }
     if (stage === punishStage) {
-        position = { x: 2, y: 1 };              // player
-        gridObjects.dummy = { x: 4, y: 1 };     // dummy
+        position = { x: 2, y: 1 };
+        gridObjects.dummy = { x: 4, y: 1 };
     }
     if (stage === praiseStage) {
-        position = { x: 2, y: 1 };              // player
-        gridObjects.dummy = { x: 4, y: 1 };     // dummy
+        position = { x: 2, y: 1 };
+        gridObjects.dummy = { x: 4, y: 1 };
+    }
+    if (upperLayout && stage === 1) {
+        position = { x: 1, y: 0 }; // left orchard area for step 1
+    }
+    if (tutorialStages[stage - 1]?.isDoorStage) {
+        position = { x: 3, y: 1 }; // above the door, ready to cross
     }
 
     let html = `
@@ -575,7 +718,11 @@ function startTutorial(stage) {
     $("#mainContent").html(html);
 
     // Initial grid draw
-    drawTutorialGrid(position, gridObjects);
+    const isDoorStage = tutorialStages[stage - 1]?.isDoorStage;
+    const useDoorGrid = layout === 'upper';
+    drawTutorialGrid(position, gridObjects, useDoorGrid ? { doorLayout: true } : {});
+    addMobileDpad();
+    scaleGameAreaForMobile();
 
     $(document).off("keydown").on("keydown", (event) => {
         let allowedKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
@@ -586,16 +733,41 @@ function startTutorial(stage) {
 
         let newPosition = { ...position };
 
-        // Boundaries: 7 columns (0..6), 3 rows (0..2)
+        // Door stage: 5-row grid (rows 0-1 upper, row 2 wall, rows 3-4 lower)
+        // Player can only cross the wall at x=3 (door column), jumping row 1 ↔ row 3
+        if (tutorialStages[stage - 1]?.isDoorStage) {
+            if (event.key === "ArrowLeft"  && position.x > 0) newPosition.x--;
+            if (event.key === "ArrowRight" && position.x < 6) newPosition.x++;
+            if (event.key === "ArrowUp") {
+                if (position.y > 0 && position.y !== 3) newPosition.y--;
+                else if (position.y === 3 && position.x === 3) newPosition.y = 1; // back through door
+            }
+            if (event.key === "ArrowDown") {
+                if (position.y < 4 && position.y !== 1) newPosition.y++;
+                else if (position.y === 1 && position.x === 3) newPosition.y = 3; // through door
+            }
+            if (newPosition.x !== position.x || newPosition.y !== position.y) {
+                position = newPosition;
+                drawTutorialGrid(position, {}, { doorLayout: true });
+                if (position.y >= 3) {
+                    $("#tutorialMessage").show();
+                    $(document).off("keydown");
+                }
+            }
+            return;
+        }
+
+        // Boundaries: 7 columns (0..6), 3 rows (0..2) — or upper 2 rows (0..1) in upper layout
+        const maxTutY = (layout === 'upper') ? 1 : 2;
         if (event.key === "ArrowLeft" && position.x > 0) newPosition.x--;
         if (event.key === "ArrowRight" && position.x < 6) newPosition.x++;
         if (event.key === "ArrowUp" && position.y > 0) newPosition.y--;
-        if (event.key === "ArrowDown" && position.y < 2) newPosition.y++;
+        if (event.key === "ArrowDown" && position.y < maxTutY) newPosition.y++;
 
         if (newPosition.x !== position.x || newPosition.y !== position.y) {
             moves++;
             position = newPosition;
-            drawTutorialGrid(position, gridObjects);
+            drawTutorialGrid(position, gridObjects, layout === 'upper' ? { doorLayout: true } : {});
 
             if (stage === 1 && moves >= maxMoves) {
                 $("#tutorialMessage").show();
@@ -639,7 +811,9 @@ function startTutorial(stage) {
 
             // === ⭐ WATER LOGIC ⭐ ===
             if (flags.water && stage === waterStage) {
-                const insideRiver = (position.x === 6);        // tutorial river at x=6
+                const insideRiver = layout === 'corners'
+                    ? ((position.x >= 5 && position.y === 0) || (position.x <= 1 && position.y === 2))
+                    : (position.x === 6);
                 const wasInside = window.tutWaterState.inWater;
 
                 // Enter river
@@ -675,7 +849,7 @@ function startTutorial(stage) {
             }
 
             // Redraw grid after movement (drop will be reattached below)
-            drawTutorialGrid(position, gridObjects);
+            drawTutorialGrid(position, gridObjects, layout === 'upper' ? { doorLayout: true } : {});
 
             // Show stain after final grid redraw so it isn't wiped
             if (allApplesCollected) {
@@ -755,18 +929,50 @@ function startTutorial(stage) {
 }
 
 
-function drawTutorialGrid(playerPos, objects) {
+function drawTutorialGrid(playerPos, objects, opts = {}) {
     // Preserve existing drop node (if any) before rebuilding grid
     const existingDrop = document.querySelector('.water-drop[data-user-id="TUTORIAL_PLAYER"]');
 
+    const isDoorLayout = !!opts.doorLayout;
+    const totalRows = isDoorLayout ? 5 : 3;
+    const WALL_ROW = 2;
+    const DOOR_COL = 3;
+
     let gridHtml = "<table class='table-bordered mx-auto'>";
 
-    for (let y = 0; y < 3; y++) {
+    for (let y = 0; y < totalRows; y++) {
         gridHtml += "<tr>";
+
+        // Wall row with door opening
+        if (isDoorLayout && y === WALL_ROW) {
+            for (let x = 0; x < 7; x++) {
+                if (x === DOOR_COL) {
+                    gridHtml += `<td style="background:#d4b896;border-left:4px solid #3d2e1e;border-right:4px solid #3d2e1e;width:40px;height:40px;"></td>`;
+                } else {
+                    gridHtml += `<td style="background:#6b5540;border-color:#3d2e1e;width:40px;height:40px;"></td>`;
+                }
+            }
+            gridHtml += "</tr>";
+            continue;
+        }
 
         for (let x = 0; x < 7; x++) {
             let cellId = `cell-${x}-${y}`;
-            let cellClass = (x <= 1) ? "orchard" : (x === 6) ? "river" : "land"; // Assign class based on column
+            // Determine cell class based on layout
+            const isUpperArea = isDoorLayout && y < WALL_ROW;
+            let cellClass;
+            if (layout === 'corners') {
+                // Diagonal: orchard top-left + bottom-right; lake top-right + bottom-left
+                if      (x <= 1 && y === 0) cellClass = 'orchard';
+                else if (x >= 5 && y === 2) cellClass = 'orchard';
+                else if (x >= 5 && y === 0) cellClass = 'lake';
+                else if (x <= 1 && y === 2) cellClass = 'lake';
+                else                        cellClass = 'land';
+            } else {
+                cellClass = isUpperArea
+                    ? ((x <= 1) ? "upper-orchard" : (x === 6) ? "upper-river" : "upper-land")
+                    : ((x <= 1) ? "orchard" : (x === 6) ? "river" : "land");
+            }
             let cellContent = "";
 
             // Player avatar
@@ -1114,10 +1320,11 @@ $(document).ready(() => {
         clearTimeout(waitingTimeout); // ✅ Cancel timeout if room is assigned
 
         roomId = roomData.roomId;
+        window.roomLayout = roomData.layout || layout || 'classic';
         users = {}; // ✅ Store user data
 
-        roomData.users.forEach(user => {
-            users[user.id] = user; // ✅ Store user info (id, avatar, etc.)
+        roomData.users.forEach(u => {
+            users[u.id] = u; // ✅ Store user info (id, avatar, etc.)
         });
 
         // ✅ Emit join_room to the server
@@ -1149,14 +1356,35 @@ $(document).ready(() => {
         alert("All players joined the room - you can start the task!");
 
         let currentUser = roomData.users.find(u => u.id === user.id);
-        if (currentUser) user.avatar = currentUser.avatar;
+        if (currentUser) {
+            user.avatar = currentUser.avatar;
+            user.team = currentUser.team;
+        }
 
+        const activeLayout = window.roomLayout || layout || 'classic';
+
+        /* TEAMS LAYOUT — disabled
+        let teamHtml = '';
+        if (activeLayout === 'teams' && user.team) {
+            const teamColor = user.team === 'A' ? '#0d6efd' : '#fd7e14';
+            const teamLabel = user.team === 'A' ? '🔵 Blue' : '🟠 Orange';
+            const teamCss   = user.team === 'A' ? 'blue' : 'orange';
+            teamHtml = `
+                <div class="alert mt-2 mb-2 py-2" style="background:${teamColor}22; border:2px solid ${teamColor};">
+                    <strong>You are on the <span class="team-badge ${teamCss}">${teamLabel}</span></strong><br>
+                    <small>Your team works together: <b>one player harvests apples</b> 🍏 while <b>the other cleans the river</b> 🌊.<br>
+                    Discuss who does what before the game starts!</small>
+                </div>`;
+        }
+        */
+        const teamHtml = '';
         let userHtml = `
             <div class="text-center mb-3">
                 <h2>All players are ready!</h2>
                 <p>You play the apple harvest game with other players, who can also clean the river and collect apples.<br>Each player is represented by an avatar with different color.</p>
+                ${teamHtml}
                 <p>This is your avatar:</p>
-                <img src="${user.avatar}" class="img-fluid" width="50">
+                <img src="${user.avatar}" class="img-fluid player-avatar" width="50">
                 <p>You can chat freely. The game starts in <span id="countdown">${chatCountdownSeconds}</span> seconds.</p>
             </div>
         `;
@@ -1260,11 +1488,14 @@ $(document).ready(() => {
     socket.on("start_grid_game", (data) => {
         console.log(`Game starting for room ${data.roomId}`);
 
+        // Store layout from server (authoritative source)
+        if (data.layout) window.roomLayout = data.layout;
+
         // ✅ Ensure user list is available
         if (data.users) {
             users = {}; // Reset user list
-            data.users.forEach(user => {
-                users[user.id] = user;
+            data.users.forEach(u => {
+                users[u.id] = u;
             });
         }
 
@@ -1286,56 +1517,100 @@ $(document).ready(() => {
 
     // ✅ Render the room with avatars
     function showRoomScreen(roomData) {
-        // ✅ Find the correct user from roomData and assign their avatar
+        const activeLayout = window.roomLayout || layout || 'classic';
+
+        // ✅ Find the correct user from roomData and assign their avatar + team
         let currentUser = roomData.users.find(u => u.id === user.id);
         if (currentUser) {
-            user.avatar = currentUser.avatar; // ✅ Set the avatar dynamically
+            user.avatar = currentUser.avatar;
+            user.team   = currentUser.team;
         }
 
-        let userHtml = `
-            <div class="text-center mb-3">
-                <h2>${user.username}</h2>
-                <img src="${user.avatar}" class="img-fluid" width="80">
-            </div>
-        `;
+        // Grid dimensions per layout
+        const gridRows = (activeLayout === 'upper') ? 20 : 10;
+        const gridCols = 15;
 
-        let otherUsersHtml = roomData.users.filter(u => u.id !== user.id).map(u => `
-            <div class="col text-center">
-                <img src="${u.avatar}" class="img-fluid" width="40">
-                <p class="small">${u.username}</p>
-            </div>
-        `).join("");
-
-        
-        let gridHtml = `
-          <div id="game-area" style="position: relative; display: inline-block;">
-            <div id="grid" class="game-grid">`;
-
-        for (let y = 0; y < 10; y++) {
-            for (let x = 0; x < 15; x++) {
-                let cellClass = x <= 2 ? "orchard" : x >= 12 ? "river" : "land";
-                gridHtml += `<div id="cell-${x}-${y}" class="grid-cell ${cellClass}" data-x="${x}" data-y="${y}"></div>`;
+        // Cell class helper
+        function cellClass(x, y) {
+            if (activeLayout === 'upper') {
+                if (y < 10) {
+                    // Premium section (y 0-9, top of screen)
+                    return x <= 2 ? "upper-orchard" : x >= 12 ? "upper-river" : "upper-land";
+                } else {
+                    // Main section (y 10-19, bottom of screen)
+                    return x <= 2 ? "orchard" : x >= 12 ? "river" : "land";
+                }
             }
+            if (activeLayout === 'corners') {
+                // Diagonal: orchard top-left + bottom-right; lake top-right + bottom-left
+                if (x <= 4  && y <= 2) return "orchard";
+                if (x >= 10 && y >= 7) return "orchard";
+                if (x >= 10 && y <= 2) return "lake";
+                if (x <= 4  && y >= 7) return "lake";
+                return "land";
+            }
+            // classic or teams
+            return x <= 2 ? "orchard" : x >= 12 ? "river" : "land";
         }
 
-        gridHtml += `
-            </div>
+        let gridHtml;
 
-            <!-- Public punishment message -->
-            <div id="centered-message" class="centered-message" style="display:none;"></div>
+        if (activeLayout === 'upper') {
+            // Premium (y 0-9) at TOP, Main (y 10-19) at BOTTOM.
+            // ArrowUp from Main y=10 → y=9 enters Premium naturally (just above).
+            let premiumCells = '', mainCells = '';
+            for (let y = 0; y < 10; y++)
+                for (let x = 0; x < gridCols; x++)
+                    premiumCells += `<div id="cell-${x}-${y}" class="grid-cell ${cellClass(x, y)}" data-x="${x}" data-y="${y}"></div>`;
+            for (let y = 10; y < 20; y++)
+                for (let x = 0; x < gridCols; x++)
+                    mainCells += `<div id="cell-${x}-${y}" class="grid-cell ${cellClass(x, y)}" data-x="${x}" data-y="${y}"></div>`;
 
-            <!-- Private message -->
-            <div id="punishment-popup" style="display:none;"></div>
-          </div>
-        `;
-        
+            gridHtml = `
+              <div class="game-area-wrapper">
+                <div id="game-area" style="position:relative; display:inline-block;">
+                  <div id="grid-upper" class="game-grid">${premiumCells}</div>
+                  <div class="upper-tunnel">
+                    <div class="upper-tunnel-wall-left"></div>
+                    <div class="upper-tunnel-door"></div>
+                    <div class="upper-tunnel-wall-right"></div>
+                  </div>
+                  <div id="grid-lower" class="game-grid">${mainCells}</div>
+                  <div id="centered-message" class="centered-message" style="display:none;"></div>
+                  <div id="punishment-popup" style="display:none;"></div>
+                </div>
+              </div>`;
+        } else {
+            let cells = '';
+            for (let y = 0; y < gridRows; y++)
+                for (let x = 0; x < gridCols; x++)
+                    cells += `<div id="cell-${x}-${y}" class="grid-cell ${cellClass(x, y)}" data-x="${x}" data-y="${y}"></div>`;
+
+            gridHtml = `
+              <div class="game-area-wrapper">
+                <div id="game-area" style="position:relative; display:inline-block;">
+                  <div id="grid" class="game-grid">${cells}</div>
+                  <div id="centered-message" class="centered-message" style="display:none;"></div>
+                  <div id="punishment-popup" style="display:none;"></div>
+                </div>
+              </div>`;
+        }
+
+        /* TEAMS LAYOUT — disabled
+        const teamBadgeHtml = (activeLayout === 'teams' && user.team)
+            ? `<span class="team-badge ${user.team === 'A' ? 'blue' : 'orange'}">${user.team === 'A' ? '🔵 Blue' : '🟠 Orange'}</span>`
+            : '';
+        const scoreBarAvatarClass = (activeLayout === 'teams' && user.team)
+            ? `player-avatar ${teamCssClass(user.team)}`
+            : '';
+        */
+
         $("#mainContent").html(`
             <div class="container">
             <div class="row justify-content-center"><h2>Apple Harvest Game</h2></div>
                 ${gridHtml}
-                <div class="d-flex justify-content-between mt-3">
-                <h3>
-                <img src="${user.avatar}" class="img-fluid" width="50"></h3>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <h3><img src="${user.avatar}" class="img-fluid" width="50"></h3>
                     <h3>Apples: <span id="starScore">0</span></h3>
                     <h3>Dirt: <span id="ballScore">0</span></h3>
                     <h3>Time left: <span id="timer">000</span> sec</h3>
@@ -1347,8 +1622,7 @@ $(document).ready(() => {
         roomData.users.forEach(u => {
             const { x, y } = u.position;
             const $cell = $(`#cell-${x}-${y}`);
-
-            // Always include class and data-* so cleanup/update code can find it
+            // const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : ''; // TEAMS disabled
             $cell.append(`
       <img src="${u.avatar}"
            class="img-fluid player-avatar"
@@ -1373,11 +1647,14 @@ $(document).ready(() => {
             canMove = true; // ✅ Allow movement again when key is released
         });
 
+        addMobileDpad();
+        scaleGameAreaForMobile();
     }
 
     socket.on("update_positions", (roomUsers) => {
+        const activeLayout = window.roomLayout || layout || 'classic';
         // 🧹 Remove only player avatars — keep apples, dirt, and drops
-        $("#grid .grid-cell img.player-avatar").remove();
+        $(".game-grid .grid-cell img.player-avatar").remove();
 
         // 🔁 For each user, re-render avatar and handle water logic
         roomUsers.forEach(u => {
@@ -1385,6 +1662,7 @@ $(document).ready(() => {
             const nowInWater = isWaterTile(u.position.x, u.position.y);
             const state = playerStates[id] || { inWater: false, dropActive: false };
             const $cell = $(`#cell-${u.position.x}-${u.position.y}`);
+            // const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : ''; // TEAMS disabled
 
             // 🎨 Draw avatar
             $cell.append(`
@@ -1447,23 +1725,24 @@ $(document).ready(() => {
     });
 
     socket.on("update_stars", (stars) => {
-        $("#grid .grid-cell img[src*='star.png']").remove();
+        const activeLayout = window.roomLayout || layout || 'classic';
+        $(".game-grid .grid-cell img[src*='star.png']").remove();
         stars.forEach(star => {
-            $(`#cell-${star.x}-${star.y}`).append(`<img src="images/star.png" class="img-fluid" width="30">`);
+            const isPremium = (activeLayout === 'upper' && star.y < 10);
+            const cls = isPremium ? 'img-fluid premium-apple' : 'img-fluid';
+            $(`#cell-${star.x}-${star.y}`).append(`<img src="images/star.png" class="${cls}" width="30">`);
         });
     });
 
 
     // === Update dirt / balls ===
     socket.on("update_balls", (balls) => {
-        // 🧹 Remove all existing ball images
-        $("#grid .grid-cell img[src*='ball.png']").remove();
-
-        // 🎯 Draw each new ball position
+        const activeLayout = window.roomLayout || layout || 'classic';
+        $(".game-grid .grid-cell img[src*='ball.png']").remove();
         balls.forEach(ball => {
-            $(`#cell-${ball.x}-${ball.y}`).append(`
-      <img src="images/ball.png" class="img-fluid" width="30">
-    `);
+            const isPremium = (activeLayout === 'upper' && ball.y < 10);
+            const cls = isPremium ? 'img-fluid premium-ball' : 'img-fluid';
+            $(`#cell-${ball.x}-${ball.y}`).append(`<img src="images/ball.png" class="${cls}" width="30">`);
         });
     });
 
@@ -1475,7 +1754,7 @@ $(document).ready(() => {
             if (coopValue > 0.7) {
                 const wasAbsent = !document.querySelector(`.coop-drop[data-user-id="${userId}"]`);
                 showCoopDrop(userId);
-                if (wasAbsent) console.log(`[Coop] Drop appeared for player ${userId} — coop = ${coopValue.toFixed(3)}`);
+                if (wasAbsent) console.log(`[Coop] Drop appeared for player ${userId} -- coop = ${coopValue.toFixed(3)}`);
             } else {
                 hideCoopDrop(userId);
             }
