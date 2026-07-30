@@ -206,6 +206,9 @@ const startingPositionsUpper = [
 // Per-room layout tracking ('classic' | 'upper' | 'teams' | 'corners')
 const roomLayouts = {};
 
+// Per-room coop smoothing weight (overrides COOP_W when set)
+const roomCoopW = {};
+
 
 
 // === Cooperation (Coop) tracking ===
@@ -217,7 +220,8 @@ function updateCoop(userId) {
     const roomLayout = roomLayouts[user.roomId] || 'classic';
     const locVal = getLocationValue(user.position.x, user.position.y, roomLayout);
     const prev = (coopValues[userId] !== undefined) ? coopValues[userId] : 0.5;
-    coopValues[userId] = computeNewCoop(prev, locVal);
+    const w = roomCoopW[user.roomId] || COOP_W;
+    coopValues[userId] = computeNewCoop(prev, locVal, w);
 }
 
 // === End Coop tracking ===
@@ -283,6 +287,7 @@ function cleanupRoom(roomId) {
     delete StartTime[roomId];
     delete gameStarted[roomId];
     delete roomLayouts[roomId];
+    delete roomCoopW[roomId];
 }
 
 io.on("connection", (socket) => {
@@ -290,9 +295,11 @@ io.on("connection", (socket) => {
     const mode = socket.handshake.query.mode || "none";
     const layout = socket.handshake.query.layout || "classic"; // 'classic'|'upper'|'teams'|'corners'
     const testMode = socket.handshake.query.test === "true"; // ✅ Read test mode flag
+    const parsedCoopW = parseFloat(socket.handshake.query.coopW);
+    const coopW = (Number.isFinite(parsedCoopW) && parsedCoopW > 0 && parsedCoopW <= 1) ? parsedCoopW : COOP_W;
     let taskTime = DEFAULT_TASK_TIME;
     const modeKey = mode === "waterPunish" ? "wp" : mode;
-    const expName = testMode ? `CleanUP_${modeKey}_test` : `CleanUP_${modeKey}`;
+    const expName = `CleanUP_${modeKey}${testMode ? '_test' : ''}_w${coopW}`;
     
     // ✅ Override taskTime for test mode only
     if (testMode) {
@@ -311,7 +318,7 @@ io.on("connection", (socket) => {
 
     console.log(`New client connected: ${socket.id}`);
     console.log(`→ mode = ${mode}`);
-    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}, stainCue = ${socket.flags.stainCue}`);
+    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}, stainCue = ${socket.flags.stainCue}, coopW = ${coopW}`);
     console.log("New client connected:", socket.id);
 
     socket.on("login", (username) => {
@@ -347,6 +354,7 @@ io.on("connection", (socket) => {
         roomTimeLeft[roomId] = 0;
         stars[roomId] = stars[roomId] || [];
         balls[roomId] = balls[roomId] || [];
+        roomCoopW[roomId] = coopW;
         console.log(`Test setup: user ${userId} assigned to room ${roomId} (groupSize ${size})`);
     });
 
@@ -396,6 +404,7 @@ io.on("connection", (socket) => {
 
             chatMessages[roomId] = [];
             roomLayouts[roomId] = layout;
+            roomCoopW[roomId] = coopW;
             const positions = (layout === 'upper') ? startingPositionsUpper : startingPositions;
             roomUsers.forEach((user, index) => {
                 user.roomId = roomId;

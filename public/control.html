@@ -36,6 +36,12 @@
     </div>
 
     <div class="container" style="max-width: 420px;">
+        <label for="coopW" class="form-label">Coop sensitivity (COOP_W)</label>
+        <input type="number" id="coopW" class="form-control mb-1" value="0.05" min="0.001" max="1" step="0.005">
+        <div class="text-muted mb-3" style="font-size:0.82rem;">Lower = drop/stain appear and disappear more slowly. Default 0.05.</div>
+    </div>
+
+    <div class="container" style="max-width: 420px;">
         <div class="form-check mb-3 text-start">
             <input class="form-check-input" type="checkbox" id="testMode">
             <label class="form-check-label" for="testMode">Test mode</label>
@@ -220,7 +226,9 @@
                     ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&jumpSias=${jumpSias}&testDuration=${testDuration}`
                     : "";
                 const layoutParam = selectedLayout !== "classic" ? `&layout=${selectedLayout}` : "";
-                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${layoutParam}${skipParam}${tutorialParam}`;
+                const coopW = document.getElementById("coopW").value;
+                const coopWParam = coopW ? `&coopW=${coopW}` : "";
+                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${layoutParam}${skipParam}${tutorialParam}${coopWParam}`;
             });
         });
     </script>

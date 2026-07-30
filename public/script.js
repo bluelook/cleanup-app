@@ -11,9 +11,10 @@ const jumpSurvey = params.get('jumpSurvey') === 'true';
 const jumpSias = params.get('jumpSias') === 'true';
 const testMode = params.get('test') === 'true';  // ✅ Testing mode flag
 const testDuration = params.get('testDuration') || '';
+const coopW = params.get('coopW') || '';
 // === end of read window.flags ===
 
-const socket = io({ query: { mode, layout, groupSize, test: testMode, testDuration } });
+const socket = io({ query: { mode, layout, groupSize, test: testMode, testDuration, coopW } });
 
 // ---- Mobile input helpers ----
 function fireKey(key) {
