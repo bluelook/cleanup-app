@@ -12,6 +12,7 @@
     width: 40px;
     height: 40px;
     text-align: center;
+    position: relative;
 }
 
 .flash-red {
@@ -266,15 +267,33 @@
 /* ===== Layout: corners (orchards + lakes at corners) ===== */
 .grid-cell.lake { background-color: #7ab8e0; }
 
-/* TEAMS LAYOUT — disabled
-.player-avatar.team-blue {
-    box-shadow: 0 0 0 3px #0d6efd, 0 0 8px 2px rgba(13, 110, 253, 0.6);
-    border-radius: 50%;
+/* ===== Layout: teams — colored hat above avatar + tinted clothes ===== */
+.player-avatar.team-blue   { /* no filter — hat marks team; natural overalls preserved */ }
+.player-avatar.team-orange { filter: sepia(0.5) saturate(4) hue-rotate(0deg) brightness(1.1); }
+.team-hat {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 1px;
+    z-index: 10;
+    pointer-events: none;
 }
-.player-avatar.team-orange {
-    box-shadow: 0 0 0 3px #fd7e14, 0 0 8px 2px rgba(253, 126, 20, 0.6);
-    border-radius: 50%;
+.team-hat-top {
+    width: 14px;
+    height: 9px;
+    border-radius: 3px 3px 0 0;
+    margin: 0 auto;
 }
+.team-hat-brim {
+    width: 22px;
+    height: 4px;
+    border-radius: 2px;
+}
+.team-hat.blue  .team-hat-top,
+.team-hat.blue  .team-hat-brim  { background: #0d6efd; }
+.team-hat.orange .team-hat-top,
+.team-hat.orange .team-hat-brim { background: #fd7e14; }
+/* Team badge shown in chat and score bar */
 .team-badge {
   display: inline-block;
   padding: 2px 10px;
@@ -284,7 +303,6 @@
 }
 .team-badge.blue   { background: #0d6efd; color: #fff; }
 .team-badge.orange { background: #fd7e14; color: #fff; }
-*/
 
 /* ===== Mobile D-pad ===== */
 .mobile-dpad {
@@ -296,7 +314,7 @@
   user-select: none;
   -webkit-user-select: none;
 }
-@media (max-width: 640px) {
+@media (hover: none) and (pointer: coarse) {
   .mobile-dpad { display: flex; }
 }
 .dpad-row {

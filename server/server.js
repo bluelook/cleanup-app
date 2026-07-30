@@ -405,11 +405,9 @@ io.on("connection", (socket) => {
                 user.position = positions[index % positions.length];
                 user.star_score = 0;
                 user.ball_score = 0;
-                /* TEAMS LAYOUT — disabled
                 if (layout === 'teams') {
                     user.team = index < Math.ceil(groupSize / 2) ? 'A' : 'B';
                 }
-                */
                 coopValues[user.id] = 0.5; // Start at neutral cooperation
                 userRooms[user.id] = roomId;
                 users[user.id] = user; //  Store full user object
@@ -710,8 +708,8 @@ io.on("connection", (socket) => {
         }
 
         const sql = `
-        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, section, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, section, layout, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             roomId,
@@ -722,6 +720,7 @@ io.on("connection", (socket) => {
             newX,
             savedY,
             section,
+            roomLayouts[roomId] || 'classic',
             stars[roomId].length,
             balls[roomId].length,
             user.star_score,
@@ -984,17 +983,13 @@ io.on("connection", (socket) => {
         let timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
         let starScore = user.star_score || 0;
         let ballScore = user.ball_score || 0;
-        // let team = user.team || null; // TEAMS disabled
+        let team = user.team || null;
 
         const sql = `
-            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, timestamp, age, gender, education, comments, star_score, ball_score)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            /* TEAMS disabled — add back when re-enabling:
-            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, timestamp, age, gender, education, comments, star_score, ball_score, team)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` */
+            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, layout, timestamp, age, gender, education, comments, star_score, ball_score, team)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        const values = [userId, userName, roomId, groupSize, expName, timestamp, age, gender, education, comments, starScore, ballScore];
-        // TEAMS disabled — add back: [..., team]
+        const values = [userId, userName, roomId, groupSize, expName, layout, timestamp, age, gender, education, comments, starScore, ballScore, team];
     
         db.query(sql, values, (err, result) => {
             if (err) {

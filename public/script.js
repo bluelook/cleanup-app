@@ -88,20 +88,18 @@ let users = {};
 let waitingTimeout;
 const timeOut = testMode ? 5 : 10; // minutes
 const payApple = 0.02;//
-const chatCountdownSeconds = testMode ? 1 : 60;
+const chatCountdownSeconds = testMode ? 10 : 60;
 let instructionPage = 1; // ✅ Track the instruction page number
 let gameFrozen = false;
 let inTutorial = false; // ✅ Track if we're in tutorial mode
 // === Water tracking ===
 const playerStates = {}; // Track in-water state per player
 
-/* TEAMS LAYOUT — disabled
 function teamCssClass(team) {
     if (team === 'A') return 'team-blue';
     if (team === 'B') return 'team-orange';
     return '';
 }
-*/
 
 function escapeHtml(value) {
     return String(value)
@@ -472,6 +470,16 @@ function showInstructions(page) {
         });
     }
 
+    if (layout === 'teams') {
+        instructionScreens.push({
+            text: "In this game, you and the other players are split into two teams: <b style='color:#0d6efd'>Team A</b> (blue hat) and <b style='color:#fd7e14'>Team B</b> (orange hat).<br><br>"
+                + "You can see which team each player belongs to by the <b>hat color</b> above their avatar.<br><br>"
+                + "Within your team, you are free to decide how to coordinate. For example, one player can focus on <b>collecting apples</b> while the other <b>cleans the river</b>. Working together with your teammate can help both of you collect more apples.<br><br>"
+                + "Your bonus is based on <b>your own apple count</b>. The more apples you collect, the higher your bonus.",
+            img: ''
+        });
+    }
+
     let totalPages = instructionScreens.length;
     let { text, img } = instructionScreens[page - 1];
 
@@ -493,7 +501,7 @@ function showInstructions(page) {
 // ✅ Handle Next/Back buttons in instructions
 function changeInstruction(direction) {
     instructionPage += direction;
-    const totalInstructionPages = (layout === 'upper' || layout === 'corners') ? 2 : 1;
+    const totalInstructionPages = (layout === 'upper' || layout === 'corners' || layout === 'teams') ? 2 : 1;
     if (instructionPage > totalInstructionPages) {
         console.log('User' + JSON.stringify(user))
 
@@ -532,8 +540,16 @@ function startTutorial(stage) {
         + "You are free to move anywhere on the map.<br>"
         + "You move using your keyboard arrow keys or the on-screen arrows. Let's try it &ndash; move around the grid.";
 
+    const step1TextTeams = "In this multiplayer apple harvest game, you play a farmer harvesting apples.<br>"
+        + "You will be assigned to a team: either the <b style='color:#0d6efd'>Blue team</b> or the <b style='color:#fd7e14'>Orange team</b>. "
+        + "You can see your team by the <b>hat color above your avatar</b>.<br><br>"
+        + "In the example below, the player is on the <b style='color:#0d6efd'>Blue team</b>. If you are assigned to the <b style='color:#fd7e14'>Orange team</b>, you will see an orange hat instead.<br><br>"
+        + "Within your team, you can coordinate with your teammate: for example, one of you collects apples while the other cleans the river.<br>"
+        + "You move using your keyboard arrow keys or the on-screen arrows. Let's try it &ndash; move around the grid.";
+
     const step1Text = layout === 'upper' ? step1TextUpper
         : layout === 'corners' ? step1TextCorners
+        : layout === 'teams' ? step1TextTeams
         : "In this multiplayer apple harvest game, you play a farmer harvesting apples. <br>You move around a 2D map using your keyboard arrow keys or the on-screen arrows.<br>Let's try it - Move around the grid.";
 
     const step2Text = layout === 'corners'
@@ -950,23 +966,22 @@ function drawTutorialGrid(playerPos, objects, opts = {}) {
 
             // Player avatar
             if (x === playerPos.x && y === playerPos.y) {
-                cellContent = `
-                    <div style="position:relative;">
-                        <img src="images/player_demo.png"
-                             class="img-fluid player-avatar"
+                const tutHat = layout === 'teams'
+                    ? `<div class="team-hat blue"><div class="team-hat-top"></div><div class="team-hat-brim"></div></div>`
+                    : '';
+                const tutAvatarClass = layout === 'teams' ? ' team-blue' : '';
+                const tutAvatarImg = layout === 'teams' ? 'images/player_1.png' : 'images/player_demo.png';
+                cellContent = `${tutHat}<img src="${tutAvatarImg}"
+                             class="img-fluid player-avatar${tutAvatarClass}"
                              width="30"
-                             data-user-id="TUTORIAL_PLAYER">
-                    </div>`;
+                             data-user-id="TUTORIAL_PLAYER">`;
             }
             // Dummy avatar
             else if (objects.dummy && objects.dummy.x === x && objects.dummy.y === y) {
-                cellContent = `
-                    <div style="position:relative;">
-                        <img src="images/player_demo.png"
+                cellContent = `<img src="images/player_demo.png"
                              class="img-fluid player-avatar"
                              width="30"
-                             data-user-id="TUTORIAL_DUMMY">
-                    </div>`;
+                             data-user-id="TUTORIAL_DUMMY">`;
             }
 
             // Apple (single)
@@ -980,17 +995,6 @@ function drawTutorialGrid(playerPos, objects, opts = {}) {
             // Dirt
             else if (objects.dirt && objects.dirt.x === x && objects.dirt.y === y) {
                 cellContent = `<img src="images/ball.png" class="img-fluid" width="30">`;
-            }
-            // punishment
-            else if (objects.dummy && objects.dummy.x === x && objects.dummy.y === y) {
-                cellContent = `
-                    <div style="position:relative;">
-                        <img src="images/player_demo.png"
-                             class="img-fluid player-avatar"
-                             width="30"
-                             data-user-id="TUTORIAL_DUMMY">
-                    </div>
-                `;
             }
 
 
@@ -1336,7 +1340,6 @@ $(document).ready(() => {
 
         const activeLayout = window.roomLayout || layout || 'classic';
 
-        /* TEAMS LAYOUT — disabled
         let teamHtml = '';
         if (activeLayout === 'teams' && user.team) {
             const teamColor = user.team === 'A' ? '#0d6efd' : '#fd7e14';
@@ -1349,8 +1352,6 @@ $(document).ready(() => {
                     Discuss who does what before the game starts!</small>
                 </div>`;
         }
-        */
-        const teamHtml = '';
         let userHtml = `
             <div class="text-center mb-3">
                 <h2>All players are ready!</h2>
@@ -1569,21 +1570,19 @@ $(document).ready(() => {
               </div>`;
         }
 
-        /* TEAMS LAYOUT — disabled
         const teamBadgeHtml = (activeLayout === 'teams' && user.team)
             ? `<span class="team-badge ${user.team === 'A' ? 'blue' : 'orange'}">${user.team === 'A' ? '🔵 Blue' : '🟠 Orange'}</span>`
             : '';
         const scoreBarAvatarClass = (activeLayout === 'teams' && user.team)
             ? `player-avatar ${teamCssClass(user.team)}`
             : '';
-        */
 
         $("#mainContent").html(`
             <div class="container">
             <div class="row justify-content-center"><h2>Apple Harvest Game</h2></div>
                 ${gridHtml}
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <h3><img src="${user.avatar}" class="img-fluid" width="50"></h3>
+                    <h3><img src="${user.avatar}" class="img-fluid ${scoreBarAvatarClass}" width="50"> ${teamBadgeHtml}</h3>
                     <h3>Apples: <span id="starScore">0</span></h3>
                     <h3>Dirt: <span id="ballScore">0</span></h3>
                     <h3>Time left: <span id="timer">000</span> sec</h3>
@@ -1595,13 +1594,18 @@ $(document).ready(() => {
         roomData.users.forEach(u => {
             const { x, y } = u.position;
             const $cell = $(`#cell-${x}-${y}`);
-            // const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : ''; // TEAMS disabled
+            const hatHtml = (activeLayout === 'teams' && u.team)
+                ? `<div class="team-hat ${u.team === 'A' ? 'blue' : 'orange'}"><div class="team-hat-top"></div><div class="team-hat-brim"></div></div>`
+                : '';
+            const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : '';
             $cell.append(`
+      ${hatHtml}
       <img src="${u.avatar}"
-           class="img-fluid player-avatar"
+           class="img-fluid player-avatar${teamClass}"
            width="30"
            data-user-id="${u.id}"
-           data-username="${u.username}">
+           data-username="${u.username}"
+           data-team="${u.team || ''}">
     `);
         });
         let canMove = true; // ✅ Prevents continuous movement
@@ -1627,7 +1631,7 @@ $(document).ready(() => {
     socket.on("update_positions", (roomUsers) => {
         const activeLayout = window.roomLayout || layout || 'classic';
         // 🧹 Remove only player avatars — keep apples, dirt, and drops
-        $(".game-grid .grid-cell img.player-avatar").remove();
+        $(".game-grid .grid-cell img.player-avatar, .game-grid .grid-cell .team-hat").remove();
 
         // 🔁 For each user, re-render avatar and handle water logic
         roomUsers.forEach(u => {
@@ -1635,15 +1639,20 @@ $(document).ready(() => {
             const nowInWater = isWaterTile(u.position.x, u.position.y);
             const state = playerStates[id] || { inWater: false, dropActive: false };
             const $cell = $(`#cell-${u.position.x}-${u.position.y}`);
-            // const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : ''; // TEAMS disabled
+            const hatHtml = (activeLayout === 'teams' && u.team)
+                ? `<div class="team-hat ${u.team === 'A' ? 'blue' : 'orange'}"><div class="team-hat-top"></div><div class="team-hat-brim"></div></div>`
+                : '';
+            const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : '';
 
             // 🎨 Draw avatar
             $cell.append(`
-              <img src="${u.avatar}" 
-                   class="img-fluid player-avatar" 
+              ${hatHtml}
+              <img src="${u.avatar}"
+                   class="img-fluid player-avatar${teamClass}"
                    width="30"
-                   data-user-id="${u.id}" 
-                   data-username="${u.username}">
+                   data-user-id="${u.id}"
+                   data-username="${u.username}"
+                   data-team="${u.team || ''}">
             `);
 
             //enable water logic
