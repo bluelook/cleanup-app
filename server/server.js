@@ -82,18 +82,11 @@ let gameStarted = {}; // バ. Track if game has started for each room
 
 
 // === Experiment modes and their feature flags ===
-const { featureSets, getLocationValue, computeNewCoop, COOP_W } = require('./gameLogic');
+const { featureSets, getLocationValue, computeNewCoop, normalizeGroupSize, COOP_W } = require('./gameLogic');
 // === End of Experiment modes and their feature flags ===
 
 app.use(cors());
 app.use(express.json());
-
-function normalizeGroupSize(value) {
-  const parsed = parseInt(value, 10);
-  if (!Number.isFinite(parsed)) return null;
-  if (parsed < 2 || parsed > 4) return null;
-  return parsed;
-}
 
 // === Determine mode (from URL query or environment variable) ===
 app.use((req, res, next) => {
@@ -513,11 +506,14 @@ io.on("connection", (socket) => {
 
         const caller = callerId ? users[callerId] : null;
         if (!caller) {
-            console.error(`[START_GRID_GAME] ❌ FAILED: Caller not found for socket ${socket.id}, userId: ${callerId}`);
-            return;
-        }
-
-        if (caller.roomId !== roomId) {
+            // Socket not registered (e.g. reconnect during chat). Fall back to roomId check.
+            const roomHasUsers = Object.values(users).some(u => u.roomId === roomId);
+            if (!roomHasUsers) {
+                console.error(`[START_GRID_GAME] ❌ FAILED: Caller not found and room ${roomId} has no users`);
+                return;
+            }
+            console.warn(`[START_GRID_GAME] ⚠️ Caller not found for socket ${socket.id} — proceeding by roomId`);
+        } else if (caller.roomId !== roomId) {
             console.error(`[START_GRID_GAME] ❌ FAILED: Caller roomId mismatch. Caller in room ${caller.roomId}, requested room ${roomId}`);
             return;
         }

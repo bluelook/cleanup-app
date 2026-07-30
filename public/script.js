@@ -137,34 +137,6 @@ function getTutorialStartStage() {
 }
 
 
-// === Water drop display - main experiment ===
-   function showWaterDrop(playerId, durationSec) {
-  const avatar = document.querySelector(`img.player-avatar[data-user-id="${playerId}"]`);
-      if (!avatar) return;
-
-      document.querySelectorAll(`.water-drop[data-user-id="${playerId}"]`).forEach(el => el.remove());
-
-      const drop = document.createElement("div");
-      drop.className = "water-drop";
-      drop.dataset.userId = playerId;
-      drop.textContent = "💧";
-      drop.style.position = "absolute";
-      drop.style.top = "-20px";
-      drop.style.left = "50%";
-      drop.style.transform = "translateX(-50%)";
-      avatar.parentElement.style.position = "relative";
-      avatar.parentElement.appendChild(drop);
-
-      playerStates[playerId] = playerStates[playerId] || {};
-      playerStates[playerId].dropActive = true;
-      playerStates[playerId].dropExpiresAt = Date.now() + durationSec * 1000;
-
-      setTimeout(() => {
-        drop.remove();
-        if (playerStates[playerId]) playerStates[playerId].dropActive = false;
-      }, durationSec * 1000);
-}
-
 // === Coop-driven persistent water drop ===
 function showCoopDrop(playerId) {
     if (document.querySelector(`.coop-drop[data-user-id="${playerId}"]`)) return; // already showing
