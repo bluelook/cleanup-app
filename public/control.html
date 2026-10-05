@@ -42,6 +42,12 @@
     </div>
 
     <div class="container" style="max-width: 420px;">
+        <label for="pBall" class="form-label">Ball spawn probability (P_ball)</label>
+        <input type="number" id="pBall" class="form-control mb-1" value="0.6" min="0" max="1" step="0.01">
+        <div class="text-muted mb-3" style="font-size:0.82rem;">Chance each second a new ball (dirt) spawns in the main playground. Default 0.6.</div>
+    </div>
+
+    <div class="container" style="max-width: 420px;">
         <div class="form-check mb-3 text-start">
             <input class="form-check-input" type="checkbox" id="testMode">
             <label class="form-check-label" for="testMode">Test mode</label>
@@ -78,6 +84,13 @@
         <div class="form-check mb-3 text-start">
             <input class="form-check-input" type="checkbox" id="jumpSias">
             <label class="form-check-label" for="jumpSias">Jump to SIAS</label>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 420px; display: none;" id="skipSiasWrap">
+        <div class="form-check mb-3 text-start">
+            <input class="form-check-input" type="checkbox" id="skipSias">
+            <label class="form-check-label" for="skipSias">Skip SIAS</label>
         </div>
     </div>
 
@@ -142,6 +155,8 @@
         const jumpSurveyCheckbox = document.getElementById("jumpSurvey");
         const jumpSiasWrap = document.getElementById("jumpSiasWrap");
         const jumpSiasCheckbox = document.getElementById("jumpSias");
+        const skipSiasWrap = document.getElementById("skipSiasWrap");
+        const skipSiasCheckbox = document.getElementById("skipSias");
         const testDurationWrap = document.getElementById("testDurationWrap");
         const testDurationInput = document.getElementById("testDuration");
 
@@ -153,6 +168,7 @@
             skipConsentWrap.style.display = isTest ? "block" : "none";
             jumpSurveyWrap.style.display = isTest ? "block" : "none";
             jumpSiasWrap.style.display = isTest ? "block" : "none";
+            skipSiasWrap.style.display = isTest ? "block" : "none";
             tutorialStartWrap.style.display = isTest && !skip ? "block" : "none";
         }
 
@@ -161,6 +177,7 @@
         skipConsentCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
         jumpSurveyCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
         jumpSiasCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
+        skipSiasCheckbox.addEventListener("change", updateTutorialOptionsVisibility);
         updateTutorialOptionsVisibility();
 
         skipTutorialCheckbox.addEventListener("change", () => {
@@ -198,11 +215,23 @@
                 tutorialStartWrap.style.display = "none";
                 jumpSurveyCheckbox.checked = false;
                 jumpSurveyCheckbox.disabled = true;
+                skipSiasCheckbox.checked = false;
+                skipSiasCheckbox.disabled = true;
             } else {
                 skipTutorialCheckbox.disabled = false;
                 skipConsentCheckbox.disabled = !skipTutorialCheckbox.checked;
                 jumpSurveyCheckbox.disabled = false;
+                skipSiasCheckbox.disabled = false;
                 updateTutorialOptionsVisibility();
+            }
+        });
+
+        skipSiasCheckbox.addEventListener("change", () => {
+            if (skipSiasCheckbox.checked) {
+                jumpSiasCheckbox.checked = false;
+                jumpSiasCheckbox.disabled = true;
+            } else {
+                jumpSiasCheckbox.disabled = false;
             }
         });
 
@@ -218,17 +247,20 @@
                 const skipConsent = skipConsentCheckbox.checked ? "true" : "false";
                 const jumpSurvey = jumpSurveyCheckbox.checked ? "true" : "false";
                 const jumpSias = jumpSiasCheckbox.checked ? "true" : "false";
+                const skipSias = skipSiasCheckbox.checked ? "true" : "false";
                 const tutorialParam = testMode === "true" && skipTutorial === "false"
                     ? `&tutorialStart=${tutorialStart}`
                     : "";
                 const testDuration = testDurationInput.value;
                 const skipParam = testMode === "true"
-                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&jumpSias=${jumpSias}&testDuration=${testDuration}`
+                    ? `&skipTutorial=${skipTutorial}&skipConsent=${skipConsent}&jumpSurvey=${jumpSurvey}&jumpSias=${jumpSias}&skipSias=${skipSias}&testDuration=${testDuration}`
                     : "";
                 const layoutParam = selectedLayout !== "classic" ? `&layout=${selectedLayout}` : "";
                 const coopW = document.getElementById("coopW").value;
                 const coopWParam = coopW ? `&coopW=${coopW}` : "";
-                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${layoutParam}${skipParam}${tutorialParam}${coopWParam}`;
+                const pBall = document.getElementById("pBall").value;
+                const pBallParam = pBall ? `&pBall=${pBall}` : "";
+                window.location.href = `/?mode=${mode}&groupSize=${groupSize}&test=${testMode}${layoutParam}${skipParam}${tutorialParam}${coopWParam}${pBallParam}`;
             });
         });
     </script>

@@ -9,12 +9,14 @@ const skipTutorial = params.get('skipTutorial') === 'true';
 const skipConsent = params.get('skipConsent') === 'true';
 const jumpSurvey = params.get('jumpSurvey') === 'true';
 const jumpSias = params.get('jumpSias') === 'true';
+const skipSias = params.get('skipSias') === 'true';
 const testMode = params.get('test') === 'true';  // ✅ Testing mode flag
 const testDuration = params.get('testDuration') || '';
 const coopW = params.get('coopW') || '';
+const pBall = params.get('pBall') || '';
 // === end of read window.flags ===
 
-const socket = io({ query: { mode, layout, groupSize, test: testMode, testDuration, coopW } });
+const socket = io({ query: { mode, layout, groupSize, test: testMode, testDuration, coopW, pBall } });
 
 // ---- Mobile input helpers ----
 function fireKey(key) {
@@ -1962,6 +1964,12 @@ $(document).ready(() => {
 
     function processPostGameStep() {
         const stepKey = postGameSteps[currentPostGameStep];
+
+        if (stepKey === "sias" && testMode && skipSias) {
+            currentPostGameStep++;
+            processPostGameStep();
+            return;
+        }
 
         if (stepKey === "demographics") {
             showDemographicsScreen();

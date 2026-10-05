@@ -202,6 +202,9 @@ const roomLayouts = {};
 // Per-room coop smoothing weight (overrides COOP_W when set)
 const roomCoopW = {};
 
+// Per-room ball spawn probability (overrides P_ball when set)
+const roomPBall = {};
+
 
 
 // === Cooperation (Coop) tracking ===
@@ -281,6 +284,7 @@ function cleanupRoom(roomId) {
     delete gameStarted[roomId];
     delete roomLayouts[roomId];
     delete roomCoopW[roomId];
+    delete roomPBall[roomId];
 }
 
 io.on("connection", (socket) => {
@@ -290,9 +294,11 @@ io.on("connection", (socket) => {
     const testMode = socket.handshake.query.test === "true"; // ✅ Read test mode flag
     const parsedCoopW = parseFloat(socket.handshake.query.coopW);
     const coopW = (Number.isFinite(parsedCoopW) && parsedCoopW > 0 && parsedCoopW <= 1) ? parsedCoopW : COOP_W;
+    const parsedPBall = parseFloat(socket.handshake.query.pBall);
+    const pBall = (Number.isFinite(parsedPBall) && parsedPBall >= 0 && parsedPBall <= 1) ? parsedPBall : P_ball;
     let taskTime = DEFAULT_TASK_TIME;
     const modeKey = mode === "waterPunish" ? "wp" : mode;
-    const expName = `CleanUP_${modeKey}${testMode ? '_test' : ''}_w${coopW}`;
+    const expName = `CleanUP_${modeKey}${testMode ? '_test' : ''}_w${coopW}_pb${pBall}`;
     
     // ✅ Override taskTime for test mode only
     if (testMode) {
@@ -311,7 +317,7 @@ io.on("connection", (socket) => {
 
     console.log(`New client connected: ${socket.id}`);
     console.log(`→ mode = ${mode}`);
-    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}, stainCue = ${socket.flags.stainCue}, coopW = ${coopW}`);
+    console.log(`→ groupSize = ${groupSize}, punishments = ${socket.flags.punishments}, praise = ${socket.flags.praise}, waterCue = ${socket.flags.waterCue}, stainCue = ${socket.flags.stainCue}, coopW = ${coopW}, pBall = ${pBall}`);
     console.log("New client connected:", socket.id);
 
     socket.on("login", (username) => {
@@ -348,6 +354,7 @@ io.on("connection", (socket) => {
         stars[roomId] = stars[roomId] || [];
         balls[roomId] = balls[roomId] || [];
         roomCoopW[roomId] = coopW;
+        roomPBall[roomId] = pBall;
         console.log(`Test setup: user ${userId} assigned to room ${roomId} (groupSize ${size})`);
     });
 
@@ -398,6 +405,7 @@ io.on("connection", (socket) => {
             chatMessages[roomId] = [];
             roomLayouts[roomId] = layout;
             roomCoopW[roomId] = coopW;
+            roomPBall[roomId] = pBall;
             const positions = (layout === 'upper') ? startingPositionsUpper : startingPositions;
             roomUsers.forEach((user, index) => {
                 user.roomId = roomId;
@@ -708,8 +716,8 @@ io.on("connection", (socket) => {
         }
 
         const sql = `
-        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, section, layout, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        INSERT INTO movements (room_id, exp_name, group_size, player_id, time_stamp, x, y, section, layout, coop_w, p_ball, stars_in_room, balls_in_room, star_score, ball_score, picked_star, picked_ball, coop_value, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             roomId,
@@ -721,6 +729,8 @@ io.on("connection", (socket) => {
             savedY,
             section,
             roomLayouts[roomId] || 'classic',
+            roomCoopW[roomId] || COOP_W,
+            roomPBall[roomId] || P_ball,
             stars[roomId].length,
             balls[roomId].length,
             user.star_score,
@@ -841,6 +851,8 @@ io.on("connection", (socket) => {
         const roomLayout = roomLayouts[roomId] || 'classic';
         const gridH = (roomLayout === 'upper') ? GRID_HEIGHT_UPPER : GRID_HEIGHT;
 
+        const effectivePBall = roomPBall[roomId] || P_ball;
+
         const interval = setInterval(() => {
             io.to(`room_${roomId}`).emit("update_timer", roomTimeLeft[roomId]);
 
@@ -853,7 +865,7 @@ io.on("connection", (socket) => {
                 if (Math.random() < P_star / (1 + mainBalls)) {
                     generateNewStar(roomId, 'main', gridH);
                 }
-                if (Math.random() < P_ball) {
+                if (Math.random() < effectivePBall) {
                     generateNewBall(roomId, 'main', gridH);
                 }
                 // Premium section (y 0-9) — only affected by premium river balls
@@ -867,7 +879,7 @@ io.on("connection", (socket) => {
                 if (Math.random() < P_star / (1 + balls[roomId].length)) {
                     generateNewStar(roomId, 'classic', gridH);
                 }
-                if (Math.random() < P_ball) {
+                if (Math.random() < effectivePBall) {
                     generateNewBall(roomId, 'classic', gridH);
                 }
             }
@@ -986,10 +998,10 @@ io.on("connection", (socket) => {
         let team = user.team || null;
 
         const sql = `
-            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, layout, timestamp, age, gender, education, comments, star_score, ball_score, team)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            INSERT INTO demographics (player_id, player_name, room_id, group_size, exp_name, layout, coop_w, p_ball, timestamp, age, gender, education, comments, star_score, ball_score, team)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        const values = [userId, userName, roomId, groupSize, expName, layout, timestamp, age, gender, education, comments, starScore, ballScore, team];
+        const values = [userId, userName, roomId, groupSize, expName, layout, roomCoopW[roomId] || COOP_W, roomPBall[roomId] || P_ball, timestamp, age, gender, education, comments, starScore, ballScore, team];
     
         db.query(sql, values, (err, result) => {
             if (err) {
