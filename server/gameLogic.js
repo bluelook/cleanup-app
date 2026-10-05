@@ -22,7 +22,7 @@ const COOP_DROP_THRESHOLD  = 0.7;
 const COOP_STAIN_THRESHOLD = 0.3;
 
 function getLocationValue(x, y, roomLayout) {
-    if (roomLayout === 'corners') {
+    if (roomLayout === 'corners' || roomLayout === 'teams_corners') {
         if ((x >= 10 && y <= 2) || (x <= 4 && y >= 7)) return 1;  // lake zone — cooperative
         if ((x <= 4  && y <= 2) || (x >= 10 && y >= 7)) return 0; // orchard zone — selfish
         return 0.5;

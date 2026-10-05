@@ -196,7 +196,10 @@ const startingPositionsUpper = [
     { x: 9, y: 7 }
 ];
 
-// Per-room layout tracking ('classic' | 'upper' | 'teams' | 'corners')
+// Per-room layout tracking ('classic' | 'upper' | 'teams' | 'corners' | 'teams_corners')
+// 'teams_corners' = teams (pairs) setup played on the corners map
+const isTeamsLayout   = (l) => l === 'teams' || l === 'teams_corners';
+const isCornersLayout = (l) => l === 'corners' || l === 'teams_corners';
 const roomLayouts = {};
 
 // Per-room coop smoothing weight (overrides COOP_W when set)
@@ -290,7 +293,7 @@ function cleanupRoom(roomId) {
 io.on("connection", (socket) => {
     // 🟢 1.  Identify mode and load its flags first
     const mode = socket.handshake.query.mode || "none";
-    const layout = socket.handshake.query.layout || "classic"; // 'classic'|'upper'|'teams'|'corners'
+    const layout = socket.handshake.query.layout || "classic"; // 'classic'|'upper'|'teams'|'corners'|'teams_corners'
     const testMode = socket.handshake.query.test === "true"; // ✅ Read test mode flag
     const parsedCoopW = parseFloat(socket.handshake.query.coopW);
     const coopW = (Number.isFinite(parsedCoopW) && parsedCoopW > 0 && parsedCoopW <= 1) ? parsedCoopW : COOP_W;
@@ -413,8 +416,10 @@ io.on("connection", (socket) => {
                 user.position = positions[index % positions.length];
                 user.star_score = 0;
                 user.ball_score = 0;
-                if (layout === 'teams') {
+                if (isTeamsLayout(layout)) {
                     user.team = index < Math.ceil(groupSize / 2) ? 'A' : 'B';
+                    // Same avatar as player_N, but with the hat recolored to the team color
+                    user.avatar = `images/team_${user.team === 'A' ? 'blue' : 'orange'}_${index + 1}.png`;
                 }
                 coopValues[user.id] = 0.5; // Start at neutral cooperation
                 userRooms[user.id] = roomId;
@@ -900,7 +905,7 @@ io.on("connection", (socket) => {
         let x, y;
         let attempts = 0;
         do {
-            if (roomLayout === 'corners') {
+            if (isCornersLayout(roomLayout)) {
                 // Diagonal orchards: top-left (x 0-4, y 0-2) or bottom-right (x 10-14, y 7-9)
                 if (Math.random() < 0.5) {
                     x = Math.floor(Math.random() * 5);
@@ -943,7 +948,7 @@ io.on("connection", (socket) => {
         let x, y;
         let attempts = 0;
         do {
-            if (roomLayout === 'corners') {
+            if (isCornersLayout(roomLayout)) {
                 // Diagonal lakes: top-right (x 10-14, y 0-2) or bottom-left (x 0-4, y 7-9)
                 if (Math.random() < 0.5) {
                     x = GRID_WIDTH - 5 + Math.floor(Math.random() * 5);

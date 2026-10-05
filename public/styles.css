@@ -267,32 +267,7 @@
 /* ===== Layout: corners (orchards + lakes at corners) ===== */
 .grid-cell.lake { background-color: #7ab8e0; }
 
-/* ===== Layout: teams — colored hat above avatar + tinted clothes ===== */
-.player-avatar.team-blue   { /* no filter — hat marks team; natural overalls preserved */ }
-.player-avatar.team-orange { filter: sepia(0.5) saturate(4) hue-rotate(0deg) brightness(1.1); }
-.team-hat {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 1px;
-    z-index: 10;
-    pointer-events: none;
-}
-.team-hat-top {
-    width: 14px;
-    height: 9px;
-    border-radius: 3px 3px 0 0;
-    margin: 0 auto;
-}
-.team-hat-brim {
-    width: 22px;
-    height: 4px;
-    border-radius: 2px;
-}
-.team-hat.blue  .team-hat-top,
-.team-hat.blue  .team-hat-brim  { background: #0d6efd; }
-.team-hat.orange .team-hat-top,
-.team-hat.orange .team-hat-brim { background: #fd7e14; }
+/* ===== Layout: teams — team hat color is baked into images/team_{blue,orange}_N.png ===== */
 /* Team badge shown in chat and score bar */
 .team-badge {
   display: inline-block;

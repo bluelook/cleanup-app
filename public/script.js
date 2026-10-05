@@ -2,7 +2,7 @@
 // === read window.flags ===
 const params = new URLSearchParams(window.location.search);
 const mode = params.get('mode') || 'full';
-const layout = params.get('layout') || 'classic'; // 'classic'|'upper'|'teams'|'corners'
+const layout = params.get('layout') || 'classic'; // 'classic'|'upper'|'teams'|'corners'|'teams_corners'
 const groupSize = params.get('groupSize') || '';
 const tutorialStartParam = parseInt(params.get('tutorialStart'), 10);
 const skipTutorial = params.get('skipTutorial') === 'true';
@@ -97,11 +97,9 @@ let inTutorial = false; // ✅ Track if we're in tutorial mode
 // === Water tracking ===
 const playerStates = {}; // Track in-water state per player
 
-function teamCssClass(team) {
-    if (team === 'A') return 'team-blue';
-    if (team === 'B') return 'team-orange';
-    return '';
-}
+// 'teams_corners' combines the teams (pairs) setup with the corners map
+function isTeamsLayout(l)   { return l === 'teams' || l === 'teams_corners'; }
+function isCornersLayout(l) { return l === 'corners' || l === 'teams_corners'; }
 
 function escapeHtml(value) {
     return String(value)
@@ -115,7 +113,7 @@ function escapeHtml(value) {
 
 function isWaterTile(x, y) {
     // Diagonal: top-right (x>=12, y<=2) and bottom-left (x<=2, y>=7) are water
-    if (layout === 'corners') return (x >= 10 && y <= 2) || (x <= 4 && y >= 7);
+    if (isCornersLayout(layout)) return (x >= 10 && y <= 2) || (x <= 4 && y >= 7);
     return x >= 12; // classic, upper, teams
 }
 
@@ -462,7 +460,7 @@ function showInstructions(page) {
         });
     }
 
-    if (layout === 'corners') {
+    if (isCornersLayout(layout)) {
         instructionScreens.push({
             text: "In this game there are <b>two orchards</b> and <b>two lakes</b>, placed diagonally at the corners of the map.<br><br>"
                 + "The orchards are at the <b>top-left</b> and <b>bottom-right</b> corners. The lakes are at the <b>top-right</b> and <b>bottom-left</b> corners.<br><br>"
@@ -472,11 +470,11 @@ function showInstructions(page) {
         });
     }
 
-    if (layout === 'teams') {
+    if (isTeamsLayout(layout)) {
         instructionScreens.push({
             text: "In this game, you and the other players are split into two teams: <b style='color:#0d6efd'>Team A</b> (blue hat) and <b style='color:#fd7e14'>Team B</b> (orange hat).<br><br>"
-                + "You can see which team each player belongs to by the <b>hat color</b> above their avatar.<br><br>"
-                + "Within your team, you are free to decide how to coordinate. For example, one player can focus on <b>collecting apples</b> while the other <b>cleans the river</b>. Working together with your teammate can help both of you collect more apples.<br><br>"
+                + "You can see which team each player belongs to by the <b>hat color</b> of their avatar.<br><br>"
+                + "Within your team, you are free to decide how to coordinate. For example, one player can focus on <b>collecting apples</b> while the other <b>cleans the " + (isCornersLayout(layout) ? "lakes" : "river") + "</b>. Working together with your teammate can help both of you collect more apples.<br><br>"
                 + "Your bonus is based on <b>your own apple count</b>. The more apples you collect, the higher your bonus.",
             img: ''
         });
@@ -503,7 +501,7 @@ function showInstructions(page) {
 // ✅ Handle Next/Back buttons in instructions
 function changeInstruction(direction) {
     instructionPage += direction;
-    const totalInstructionPages = (layout === 'upper' || layout === 'corners' || layout === 'teams') ? 2 : 1;
+    const totalInstructionPages = 1 + (layout === 'upper' ? 1 : 0) + (isCornersLayout(layout) ? 1 : 0) + (isTeamsLayout(layout) ? 1 : 0);
     if (instructionPage > totalInstructionPages) {
         console.log('User' + JSON.stringify(user))
 
@@ -544,25 +542,25 @@ function startTutorial(stage) {
 
     const step1TextTeams = "In this multiplayer apple harvest game, you play a farmer harvesting apples.<br>"
         + "You will be assigned to a team: either the <b style='color:#0d6efd'>Blue team</b> or the <b style='color:#fd7e14'>Orange team</b>. "
-        + "You can see your team by the <b>hat color above your avatar</b>.<br><br>"
+        + "You can see your team by the <b>hat color of your avatar</b>.<br><br>"
         + "In the example below, the player is on the <b style='color:#0d6efd'>Blue team</b>. If you are assigned to the <b style='color:#fd7e14'>Orange team</b>, you will see an orange hat instead.<br><br>"
-        + "Within your team, you can coordinate with your teammate: for example, one of you collects apples while the other cleans the river.<br>"
+        + "Within your team, you can coordinate with your teammate: for example, one of you collects apples while the other cleans the " + (isCornersLayout(layout) ? "lakes" : "river") + ".<br>"
         + "You move using your keyboard arrow keys or the on-screen arrows. Let's try it &ndash; move around the grid.";
 
     const step1Text = layout === 'upper' ? step1TextUpper
-        : layout === 'corners' ? step1TextCorners
-        : layout === 'teams' ? step1TextTeams
+        : isTeamsLayout(layout) ? step1TextTeams
+        : isCornersLayout(layout) ? step1TextCorners
         : "In this multiplayer apple harvest game, you play a farmer harvesting apples. <br>You move around a 2D map using your keyboard arrow keys or the on-screen arrows.<br>Let's try it - Move around the grid.";
 
-    const step2Text = layout === 'corners'
+    const step2Text = isCornersLayout(layout)
         ? "Apples grow in the orchards, the green corners of the map. <br>You collect them by moving over them. <br>Let's try it - move to collect the apple."
         : "Apples grow in the orchard, the green squares on the left of the map. <br>You collect them by moving over them. <br>Let's try it - move to collect the apple.";
 
-    const step3Text = layout === 'corners'
+    const step3Text = isCornersLayout(layout)
         ? "Apples don't grow if there is too much dirt in the lakes, the blue corners of the map.<br>To clean a lake from dirt, you move over it.<br>Let's try it - move to clean the dirt from the lake."
         : "Apples don't grow if there is too much dirt in the river, the blue squares on the right of the map.<br>To clean the river from dirt, you move over it.<br>Let's try it - move to clean the dirt from the river.";
 
-    const step45Text = layout === 'corners'
+    const step45Text = isCornersLayout(layout)
         ? "Your goal is to collect as many apples as possible, each apple will earn you <b>&pound;" + payApple + "</b> bonus.<br>To get more apples, you need to clean the lakes first.<br>Let's try it - move to clean the lake, and then collect the apple."
         : "Your goal is to collect as many apples as possible, each apple will earn you <b>&pound;" + payApple + "</b> bonus.<br>To get more apples, you need to clean the river first.<br>Let's try it - move to clean the river, and then collect the apple.";
 
@@ -585,7 +583,7 @@ function startTutorial(stage) {
 
     // ⭐ Insert WATER stage only if mode supports water
     if (flags.water) {
-        const isCorners = layout === 'corners';
+        const isCorners = isCornersLayout(layout);
         tutorialStages.push({
             text: isCorners
                 ? "In this game, players who spend time cleaning the lakes are rewarded with a water drop 💧 above their head.<br>The drop appears when a player has been spending enough time in a lake, and disappears when they stop.<br>You can keep moving while the drop is present."
@@ -600,7 +598,7 @@ function startTutorial(stage) {
     if (flags.stain) {
         tutorialStages.push({
             text: "Players who spend most of their time collecting apples without helping clean will have a stain 🟤 appear above their head.<br>Collect all the apples in the "
-                + (layout === 'corners' ? "orchards." : "orchard."),
+                + (isCornersLayout(layout) ? "orchards." : "orchard."),
             objective: "Collect all apples → See the stain appear"
         });
     }
@@ -643,7 +641,7 @@ function startTutorial(stage) {
     // In upper layout, y=2 is the wall row — keep objects in y 0-1.
     // In corners layout, apples go to orchard corners; dirt goes to lake corners.
     const upperLayout = layout === 'upper';
-    const cornersLayout = layout === 'corners';
+    const cornersLayout = isCornersLayout(layout);
     if (stage === 2) {
         if (cornersLayout)    { gridObjects.apple = { x: 0, y: 0 }; position = { x: 3, y: 0 }; }
         else if (upperLayout) { gridObjects.apple = { x: 0, y: 1 }; position = { x: 3, y: 1 }; }
@@ -802,7 +800,7 @@ function startTutorial(stage) {
 
             // === ⭐ WATER LOGIC ⭐ ===
             if (flags.water && stage === waterStage) {
-                const insideRiver = layout === 'corners'
+                const insideRiver = isCornersLayout(layout)
                     ? ((position.x >= 5 && position.y === 0) || (position.x <= 1 && position.y === 2))
                     : (position.x === 6);
                 const wasInside = window.tutWaterState.inWater;
@@ -952,7 +950,7 @@ function drawTutorialGrid(playerPos, objects, opts = {}) {
             // Determine cell class based on layout
             const isUpperArea = isDoorLayout && y < WALL_ROW;
             let cellClass;
-            if (layout === 'corners') {
+            if (isCornersLayout(layout)) {
                 // Diagonal: orchard top-left + bottom-right; lake top-right + bottom-left
                 if      (x <= 1 && y === 0) cellClass = 'orchard';
                 else if (x >= 5 && y === 2) cellClass = 'orchard';
@@ -968,13 +966,9 @@ function drawTutorialGrid(playerPos, objects, opts = {}) {
 
             // Player avatar
             if (x === playerPos.x && y === playerPos.y) {
-                const tutHat = layout === 'teams'
-                    ? `<div class="team-hat blue"><div class="team-hat-top"></div><div class="team-hat-brim"></div></div>`
-                    : '';
-                const tutAvatarClass = layout === 'teams' ? ' team-blue' : '';
-                const tutAvatarImg = layout === 'teams' ? 'images/player_1.png' : 'images/player_demo.png';
-                cellContent = `${tutHat}<img src="${tutAvatarImg}"
-                             class="img-fluid player-avatar${tutAvatarClass}"
+                const tutAvatarImg = isTeamsLayout(layout) ? 'images/team_blue_1.png' : 'images/player_demo.png';
+                cellContent = `<img src="${tutAvatarImg}"
+                             class="img-fluid player-avatar"
                              width="30"
                              data-user-id="TUTORIAL_PLAYER">`;
             }
@@ -1270,7 +1264,9 @@ $(document).ready(() => {
                 tempUsers[dummyId] = {
                     id: dummyId,
                     username: `DUMMY_${i + 1}`,
-                    avatar: `images/player_${(i % 6) + 1}.png`,
+                    avatar: isTeamsLayout(layout)
+                        ? `images/team_${(i + 2) <= Math.ceil(targetSize / 2) ? 'blue' : 'orange'}_${(i % 5) + 2}.png`
+                        : `images/player_${(i % 6) + 1}.png`,
                     position: { x: 0, y: 0 }
                 };
             }
@@ -1343,14 +1339,14 @@ $(document).ready(() => {
         const activeLayout = window.roomLayout || layout || 'classic';
 
         let teamHtml = '';
-        if (activeLayout === 'teams' && user.team) {
+        if (isTeamsLayout(activeLayout) && user.team) {
             const teamColor = user.team === 'A' ? '#0d6efd' : '#fd7e14';
             const teamLabel = user.team === 'A' ? '🔵 Blue' : '🟠 Orange';
             const teamCss   = user.team === 'A' ? 'blue' : 'orange';
             teamHtml = `
                 <div class="alert mt-2 mb-2 py-2" style="background:${teamColor}22; border:2px solid ${teamColor};">
                     <strong>You are on the <span class="team-badge ${teamCss}">${teamLabel}</span></strong><br>
-                    <small>Your team works together: <b>one player harvests apples</b> 🍏 while <b>the other cleans the river</b> 🌊.<br>
+                    <small>Your team works together: <b>one player harvests apples</b> 🍏 while <b>the other cleans the ${isCornersLayout(activeLayout) ? 'lakes' : 'river'}</b> 🌊.<br>
                     Discuss who does what before the game starts!</small>
                 </div>`;
         }
@@ -1517,7 +1513,7 @@ $(document).ready(() => {
                     return x <= 2 ? "orchard" : x >= 12 ? "river" : "land";
                 }
             }
-            if (activeLayout === 'corners') {
+            if (isCornersLayout(activeLayout)) {
                 // Diagonal: orchard top-left + bottom-right; lake top-right + bottom-left
                 if (x <= 4  && y <= 2) return "orchard";
                 if (x >= 10 && y >= 7) return "orchard";
@@ -1572,11 +1568,8 @@ $(document).ready(() => {
               </div>`;
         }
 
-        const teamBadgeHtml = (activeLayout === 'teams' && user.team)
+        const teamBadgeHtml = (isTeamsLayout(activeLayout) && user.team)
             ? `<span class="team-badge ${user.team === 'A' ? 'blue' : 'orange'}">${user.team === 'A' ? '🔵 Blue' : '🟠 Orange'}</span>`
-            : '';
-        const scoreBarAvatarClass = (activeLayout === 'teams' && user.team)
-            ? `player-avatar ${teamCssClass(user.team)}`
             : '';
 
         $("#mainContent").html(`
@@ -1584,7 +1577,7 @@ $(document).ready(() => {
             <div class="row justify-content-center"><h2>Apple Harvest Game</h2></div>
                 ${gridHtml}
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <h3><img src="${user.avatar}" class="img-fluid ${scoreBarAvatarClass}" width="50"> ${teamBadgeHtml}</h3>
+                    <h3><img src="${user.avatar}" class="img-fluid" width="50"> ${teamBadgeHtml}</h3>
                     <h3>Apples: <span id="starScore">0</span></h3>
                     <h3>Dirt: <span id="ballScore">0</span></h3>
                     <h3>Time left: <span id="timer">000</span> sec</h3>
@@ -1596,14 +1589,9 @@ $(document).ready(() => {
         roomData.users.forEach(u => {
             const { x, y } = u.position;
             const $cell = $(`#cell-${x}-${y}`);
-            const hatHtml = (activeLayout === 'teams' && u.team)
-                ? `<div class="team-hat ${u.team === 'A' ? 'blue' : 'orange'}"><div class="team-hat-top"></div><div class="team-hat-brim"></div></div>`
-                : '';
-            const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : '';
             $cell.append(`
-      ${hatHtml}
       <img src="${u.avatar}"
-           class="img-fluid player-avatar${teamClass}"
+           class="img-fluid player-avatar"
            width="30"
            data-user-id="${u.id}"
            data-username="${u.username}"
@@ -1631,9 +1619,8 @@ $(document).ready(() => {
     }
 
     socket.on("update_positions", (roomUsers) => {
-        const activeLayout = window.roomLayout || layout || 'classic';
         // 🧹 Remove only player avatars — keep apples, dirt, and drops
-        $(".game-grid .grid-cell img.player-avatar, .game-grid .grid-cell .team-hat").remove();
+        $(".game-grid .grid-cell img.player-avatar").remove();
 
         // 🔁 For each user, re-render avatar and handle water logic
         roomUsers.forEach(u => {
@@ -1641,16 +1628,11 @@ $(document).ready(() => {
             const nowInWater = isWaterTile(u.position.x, u.position.y);
             const state = playerStates[id] || { inWater: false, dropActive: false };
             const $cell = $(`#cell-${u.position.x}-${u.position.y}`);
-            const hatHtml = (activeLayout === 'teams' && u.team)
-                ? `<div class="team-hat ${u.team === 'A' ? 'blue' : 'orange'}"><div class="team-hat-top"></div><div class="team-hat-brim"></div></div>`
-                : '';
-            const teamClass = (activeLayout === 'teams' && u.team) ? ` ${teamCssClass(u.team)}` : '';
 
             // 🎨 Draw avatar
             $cell.append(`
-              ${hatHtml}
               <img src="${u.avatar}"
-                   class="img-fluid player-avatar${teamClass}"
+                   class="img-fluid player-avatar"
                    width="30"
                    data-user-id="${u.id}"
                    data-username="${u.username}"
