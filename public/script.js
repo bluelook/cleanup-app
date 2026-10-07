@@ -474,7 +474,7 @@ function showInstructions(page) {
         instructionScreens.push({
             text: "In this game, you and the other players are split into two teams: <b style='color:#0d6efd'>Team A</b> (blue hat) and <b style='color:#fd7e14'>Team B</b> (orange hat).<br><br>"
                 + "You can see which team each player belongs to by the <b>hat color</b> of their avatar.<br><br>"
-                + "Within your team, you are free to decide how to coordinate. For example, one player can focus on <b>collecting apples</b> while the other <b>cleans the " + (isCornersLayout(layout) ? "lakes" : "river") + "</b>. Working together with your teammate can help both of you collect more apples.<br><br>"
+                + "You are free to decide how to coordinate. For example, one player in a team can focus on <b>collecting apples</b> while the other player <b>cleans the " + (isCornersLayout(layout) ? "lakes" : "river") + "</b>. You can also decide that one team is <b>collecting apples</b> while the other team <b>cleans the " + (isCornersLayout(layout) ? "lakes" : "river") + "</b>. Working as team mates can help both of you collect more apples.<br><br>"
                 + "Your bonus is based on <b>your own apple count</b>. The more apples you collect, the higher your bonus.",
             img: ''
         });
@@ -1345,9 +1345,7 @@ $(document).ready(() => {
             const teamCss   = user.team === 'A' ? 'blue' : 'orange';
             teamHtml = `
                 <div class="alert mt-2 mb-2 py-2" style="background:${teamColor}22; border:2px solid ${teamColor};">
-                    <strong>You are on the <span class="team-badge ${teamCss}">${teamLabel}</span></strong><br>
-                    <small>Your team works together: <b>one player harvests apples</b> 🍏 while <b>the other cleans the ${isCornersLayout(activeLayout) ? 'lakes' : 'river'}</b> 🌊.<br>
-                    Discuss who does what before the game starts!</small>
+                    <strong>You are on the <span class="team-badge ${teamCss}">${teamLabel}</span> team</strong>
                 </div>`;
         }
         let userHtml = `
